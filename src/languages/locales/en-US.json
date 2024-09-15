@@ -1,0 +1,12 @@
+{
+  "mainTitle": "Welcome to the Eng Chatbot",
+  "backToLogin": "Back to login",
+  "alertSuccess": "Success",
+  "alertError": "Error",
+  "error": {
+    "login": "Login failed",
+    "pageNotFound": "Page not found",
+    "somethingWentWrong": "Something went wrong",
+    "internal": "Internal server error"
+  }
+}
