@@ -1,5 +1,2 @@
-import color from './color';
-
-export {
-    color
-}
+export * from "./color";
+export * from "./regex";

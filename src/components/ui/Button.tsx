@@ -4,43 +4,45 @@ import { useTranslation } from "react-i18next";
 import { Button as MuiButton, ButtonProps } from "@mui/material";
 
 import { Typography } from "./Typography";
+import { TypographyTypes } from "../types";
 
 const TABLET_BREAKPOINT = 640;
 
-const StyledButton = styled(MuiButton)<ButtonProps & { transform?: boolean }>(
-  ({ transform }) => {
-    const baseStyle = {
-      padding: "8px 10px 8px 10px",
-      borderRadius: 8,
-      minWidth: 100,
-      boxShadow: "none",
-      "&:hover": {
-        boxShadow: "0px 2px 6px 0px rgba(50, 50, 50, 0.40)",
-      },
-      transition: "all 0.6s ease",
-    };
+const StyledButton = styled(MuiButton)<ButtonProps & { transform?: boolean }>(({
+  transform,
+}) => {
+  const baseStyle = {
+    padding: "8px 10px 8px 10px",
+    borderRadius: 8,
+    minWidth: 100,
+    boxShadow: "none",
+    "&:hover": {
+      boxShadow: "0px 2px 6px 0px rgba(50, 50, 50, 0.40)",
+    },
+    transition: "all 0.6s ease",
+  };
 
-    const circleStyle = {
-      display: "flex",
-      padding: 0,
-      minWidth: 42,
-      height: 42,
-      borderRadius: "50%",
-      justifyContent: "center",
-      alignItems: "center",
-      boxShadow: "none",
-      "&:hover": {
-        boxShadow: "0px 2px 6px 0px rgba(50, 50, 50, 0.40)",
-      },
-      transition: "all 0.6s ease",
-    };
+  const circleStyle = {
+    display: "flex",
+    padding: 0,
+    minWidth: 42,
+    height: 42,
+    borderRadius: "50%",
+    justifyContent: "center",
+    alignItems: "center",
+    boxShadow: "none",
+    "&:hover": {
+      boxShadow: "0px 2px 6px 0px rgba(50, 50, 50, 0.40)",
+    },
+    transition: "all 0.6s ease",
+  };
 
-    return transform ? circleStyle : baseStyle;
-  }
-);
+  return transform ? circleStyle : baseStyle;
+});
 
 type Props = {
   text: string;
+  textType?: TypographyTypes;
   style?: {
     background?: string | number;
     color?: string;
@@ -50,7 +52,7 @@ type Props = {
 
 const useBreakpoint = (breakpoint: number) => {
   const [shouldBreak, setShouldBreak] = useState(
-    window.innerWidth <= breakpoint
+    window.innerWidth <= breakpoint,
   );
 
   useEffect(() => {
@@ -68,6 +70,7 @@ const useBreakpoint = (breakpoint: number) => {
 
 export const Button: React.FC<Props> = ({
   text,
+  textType,
   style,
   transform,
   startIcon,
@@ -88,7 +91,7 @@ export const Button: React.FC<Props> = ({
       {shouldTransform ? (
         startIcon
       ) : (
-        <Typography type="title-4" color={color}>
+        <Typography type={textType || "title-4"} color={color}>
           {t(text)}
         </Typography>
       )}

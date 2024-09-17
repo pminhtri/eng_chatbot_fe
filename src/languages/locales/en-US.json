@@ -1,12 +1,17 @@
 {
-  "mainTitle": "Welcome to the Eng Chatbot",
+  "mainTitle": "Welcome to the app",
   "backToLogin": "Back to login",
   "alertSuccess": "Success",
   "alertError": "Error",
-  "error": {
-    "login": "Login failed",
-    "pageNotFound": "Page not found",
-    "somethingWentWrong": "Something went wrong",
-    "internal": "Internal server error"
-  }
+  "email": "Email",
+  "password": "Password",
+  "login": "Login",
+  "loginWithGoogle": "Continue with Google",
+  "loginWithFacebook": "Continue with Facebook",
+  "loginWithMicrosoft": "Continue with Microsoft",
+  "registerQuestion": "Don't have an account?",
+  "error.login": "Login failed",
+  "error.pageNotFound": "Page not found",
+  "error.somethingWentWrong": "Something went wrong",
+  "error.internal": "Internal server error"
 }

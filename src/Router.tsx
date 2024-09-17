@@ -1,8 +1,76 @@
-import { useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { PageNotFound } from "./errors";
 import configs from "./configs";
 import { i18n } from "./utils";
+import { useGlobalStore } from "./store";
+import { Login, Logout, Register } from "./modules/auth";
+
+const parseJwt = (accessToken: string) => {
+  try {
+    return JSON.parse(atob(accessToken.split(".")[1]));
+  } catch (e) {
+    return <></>;
+  }
+};
+
+const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
+  const {
+    state: { currentUser },
+    actions: { fetchCurrentUser },
+  } = useGlobalStore();
+  const location = useLocation();
+  const accessToken = localStorage.getItem("accessToken") || "";
+
+  const [isAccessTokenExpired, setIsAccessTokenExpired] = useState(false);
+
+  const { isLoading } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: async () => {
+      if (!currentUser && accessToken) {
+        await fetchCurrentUser();
+      }
+    },
+    enabled: !!currentUser,
+  });
+
+  useEffect(() => {
+    const decodedJwt = parseJwt(accessToken);
+
+    if (!decodedJwt || decodedJwt.exp * 1000 < Date.now()) {
+      setIsAccessTokenExpired(true);
+    }
+  }, [accessToken, location]);
+
+  if (isAccessTokenExpired) {
+    return <Navigate to="/auth/logout" replace />;
+  }
+
+  if (isLoading) {
+    return <></>;
+  }
+
+  if (currentUser && !isAccessTokenExpired) {
+    return children;
+  }
+
+  return <Navigate to="/auth/logout" replace />;
+};
+
+function UnauthenticatedRoute({ children }: { children: React.ReactNode }) {
+  const {
+    state: { currentUser },
+  } = useGlobalStore();
+
+  const accessToken = localStorage.getItem("accessToken");
+
+  if (!currentUser && !accessToken) {
+    return children;
+  }
+
+  return <Navigate to="/" replace />;
+}
 
 function Router() {
   useEffect(() => {
@@ -15,7 +83,27 @@ function Router() {
 
   return (
     <Routes>
-      <Route path="/" element={<>Hello World</>} />
+      <Route
+        path="/auth/login"
+        element={
+          <UnauthenticatedRoute>
+            <Login />
+          </UnauthenticatedRoute>
+        }
+      />
+      <Route
+        path="/auth/register"
+        element={
+          <UnauthenticatedRoute>
+            <Register />
+          </UnauthenticatedRoute>
+        }
+      />
+      <Route path="/auth/logout" element={<Logout />} />
+      <Route
+        path="/"
+        element={<AuthenticatedRoute>Hello World</AuthenticatedRoute>}
+      />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

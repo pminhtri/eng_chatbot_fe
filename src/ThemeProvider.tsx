@@ -50,7 +50,7 @@ declare module "@mui/material/styles" {
 
 export const ThemeProvider: React.FC<Props> = ({ children }) => {
   const {
-    value: { theme },
+    state: { theme },
   } = useGlobalStore();
   const [muiThem, setMuiTheme] = useState(
     createTheme({
@@ -104,7 +104,7 @@ export const ThemeProvider: React.FC<Props> = ({ children }) => {
           desktop: 1920,
         },
       },
-    })
+    }),
   );
 
   useEffect(() => {

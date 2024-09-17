@@ -110,7 +110,7 @@ export function withAlertMessage(Component: FC) {
       text: string,
       type: AlertColor,
       duration: number = configs.DEFAULT_DURATION,
-      title?: string
+      title?: string,
     ) => {
       const now = Date.now();
       const newMessage = {
@@ -155,7 +155,7 @@ export function withAlertMessage(Component: FC) {
             showInfoMessage,
             showWarningMessage,
           }),
-          [messages]
+          [messages],
         )}
       >
         {element}

@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAlert } from "./useAlert";
-import { AppError } from "../contracts";
+import { AppError } from "../types";
 import { ErrorCode } from "../enums";
 
 type ReturnType = {

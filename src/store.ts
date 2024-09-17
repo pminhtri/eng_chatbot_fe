@@ -1,38 +1,44 @@
 import { create } from "zustand";
 import { Theme } from "./enums";
+import { UserDetails } from "./types";
+import { fetchCurrentUser } from "./api";
 
 type State = {
-    theme: Theme
+  theme: Theme;
+  currentUser: UserDetails | null;
+};
+
+type Actions = {
+  setTheme: (theme: Theme) => void;
+  fetchCurrentUser: () => Promise<void>;
+  clearUser: () => void;
 };
 
 type Store = {
-    value: State;
-    actions: {
-        setThemeMode: (theme: Theme) => void;
-        clearStore: () => void;
-    };
+  state: State;
+  actions: Actions;
 };
 
 const defaultState: State = {
-    theme: Theme.LIGHT
+  theme: Theme.SYSTEM,
+  currentUser: null,
 };
 
 const useStore = create<Store>((set) => ({
-    value: defaultState,
-    actions: {
-        setThemeMode: (theme) => {
-            set(() => ({
-                value: {
-                    theme
-                }
-            }));
-        },
-        clearStore() {
-            set(() => ({
-                value: defaultState,
-            }));
-        },
+  state: defaultState,
+  actions: {
+    setTheme: (theme) => set((state) => ({ ...state, theme })),
+    fetchCurrentUser: async () => {
+      const user = await fetchCurrentUser();
+
+      set((state) => ({ ...state, currentUser: user }));
     },
+    clearUser: () =>
+      set((state) => ({
+        ...state,
+        currentUser: null,
+      })),
+  },
 }));
 
 export const useGlobalStore = useStore;
