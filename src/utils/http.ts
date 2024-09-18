@@ -3,7 +3,7 @@ import { AppError } from "../types";
 import { ErrorCode } from "../enums";
 
 const axiosClient = axios.create({
-  baseURL: `http://localhost:5001/api`,
+  baseURL: import.meta.env.VITE_APP_API_URL,
 });
 
 axiosClient.interceptors.request.use(
