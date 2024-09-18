@@ -46,9 +46,12 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 function UnauthenticatedRoute({ children }: { children: React.ReactNode }) {
+  const {
+    value: { currentUser },
+  } = useGlobalStore();
   const accessToken = localStorage.getItem("accessToken");
 
-  if (accessToken) {
+  if (currentUser && accessToken) {
     return <Navigate to="/" replace />;
   }
 
