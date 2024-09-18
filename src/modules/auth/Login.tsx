@@ -23,6 +23,7 @@ import { Button, Typography } from "../../components/ui";
 import { Layout } from "../../layouts";
 import { color } from "../../constants";
 import { formatRules } from "../../utils/validation";
+import { useGlobalStore } from "../../store";
 
 type LoginForm = {
   email: string;
@@ -141,6 +142,10 @@ const Login = () => {
     actions: { login },
   } = useAuthStore();
 
+  const {
+    actions: { fetchCurrentUser },
+  } = useGlobalStore();
+
   const form = useForm<LoginForm>({
     mode: "onChange",
     defaultValues: {
@@ -160,6 +165,7 @@ const Login = () => {
       setErrorMessage("");
       setExecuting(true);
       await login(email, password);
+      await fetchCurrentUser();
       navigate("/");
     } catch (error) {
       const appError = error as AppError;

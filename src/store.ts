@@ -3,7 +3,7 @@ import { Theme } from "./enums";
 import { UserDetails } from "./types";
 import { fetchCurrentUser } from "./api";
 
-type State = {
+type StateValue = {
   theme: Theme;
   currentUser: UserDetails | null;
 };
@@ -16,33 +16,42 @@ type Actions = {
 };
 
 type Store = {
-  state: State;
+  value: StateValue;
   actions: Actions;
 };
 
-const defaultState: State = {
+const initialStateValue: StateValue = {
   theme: Theme.SYSTEM,
   currentUser: null,
 };
 
 const useStore = create<Store>((set) => ({
-  state: defaultState,
+  value: initialStateValue,
   actions: {
     setTheme: (theme) => set((state) => ({ ...state, theme })),
     setCurrentUser: (user) =>
-      set((state) => ({
-        ...state,
-        currentUser: user,
+      set(({ value }) => ({
+        value: {
+          ...value,
+          currentUser: user,
+        },
       })),
     fetchCurrentUser: async () => {
       const user = await fetchCurrentUser();
 
-      set((state) => ({ ...state, currentUser: user }));
+      set(({ value }) => ({
+        value: {
+          ...value,
+          currentUser: user,
+        },
+      }));
     },
     clearUser: () =>
-      set((state) => ({
-        ...state,
-        currentUser: null,
+      set(({ value }) => ({
+        value: {
+          ...value,
+          currentUser: null,
+        },
       })),
   },
 }));

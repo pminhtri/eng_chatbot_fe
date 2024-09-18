@@ -15,7 +15,6 @@ export const useErrorHandler = (): ReturnType => {
   const location = useLocation();
 
   const handleError = (error: Error) => {
-    console.log(error);
     if (error instanceof AppError) {
       if (error.code === ErrorCode.UNAUTHORIZED) {
         return navigate("/auth/logout", { replace: true });

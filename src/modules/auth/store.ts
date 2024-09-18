@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { login } from "../../api";
 
-type State = {};
+type StateValue = {};
 
 type Actions = {
   login: (email: string, password: string) => Promise<void>;
@@ -9,17 +9,20 @@ type Actions = {
 };
 
 type AuthStore = {
-  state: State;
+  value: StateValue;
   actions: Actions;
 };
 
-const initialState: State = {};
+const initialState: StateValue = {};
 
 const useStore = create<AuthStore>(() => ({
-  state: initialState,
+  value: initialState,
   actions: {
-    login: async (email: string, password: string) =>
-      await login({ email, password }),
+    login: async (email: string, password: string) => {
+      const { accessToken } = await login({ email, password });
+
+      localStorage.setItem("accessToken", accessToken);
+    },
     logout: () => {
       localStorage.removeItem("accessToken");
     },

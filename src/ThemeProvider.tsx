@@ -50,7 +50,7 @@ declare module "@mui/material/styles" {
 
 export const ThemeProvider: React.FC<Props> = ({ children }) => {
   const {
-    state: { theme },
+    value: { theme },
   } = useGlobalStore();
   const [muiThem, setMuiTheme] = useState(
     createTheme({
