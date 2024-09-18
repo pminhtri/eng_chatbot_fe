@@ -6,6 +6,7 @@ import configs from "./configs";
 import { i18n } from "./utils";
 import { useGlobalStore } from "./store";
 import { Login, Logout, Register } from "./modules/auth";
+import { fetchCurrentUser } from "./api";
 
 const parseJwt = (accessToken: string) => {
   try {
@@ -18,30 +19,37 @@ const parseJwt = (accessToken: string) => {
 const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
   const {
     state: { currentUser },
-    actions: { fetchCurrentUser },
+    actions: { setCurrentUser },
   } = useGlobalStore();
   const location = useLocation();
   const accessToken = localStorage.getItem("accessToken") || "";
 
   const [isAccessTokenExpired, setIsAccessTokenExpired] = useState(false);
 
-  const { isLoading } = useQuery({
+  const { data: user, isLoading } = useQuery({
     queryKey: ["currentUser"],
     queryFn: async () => {
-      if (!currentUser && accessToken) {
-        await fetchCurrentUser();
+      if (accessToken) {
+        const user = await fetchCurrentUser();
+
+        return user;
       }
     },
-    enabled: !!currentUser,
+    enabled: !currentUser,
+    initialData: null,
   });
 
   useEffect(() => {
     const decodedJwt = parseJwt(accessToken);
 
+    if (user) {
+      setCurrentUser(user);
+    }
+
     if (!decodedJwt || decodedJwt.exp * 1000 < Date.now()) {
       setIsAccessTokenExpired(true);
     }
-  }, [accessToken, location]);
+  }, [user, accessToken, location]);
 
   if (isAccessTokenExpired) {
     return <Navigate to="/auth/logout" replace />;

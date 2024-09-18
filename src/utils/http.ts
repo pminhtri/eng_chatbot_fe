@@ -6,6 +6,19 @@ const axiosClient = axios.create({
   baseURL: `http://localhost:5001/api`,
 });
 
+axiosClient.interceptors.request.use(
+  (config) => {
+    const accessToken = localStorage.getItem('accessToken');
+
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
+
 axiosClient.interceptors.response.use(
   (response) => response,
   (e) => {

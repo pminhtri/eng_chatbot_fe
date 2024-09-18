@@ -118,7 +118,7 @@ const SubmitButton = styled(Button)({
   },
 });
 
-const ThirdPartyLoginButton = styled(Button)({
+const ThirdPartyLoginButton = styled(Button)(({ theme }) => ({
   padding: "10px 80px",
   backgroundColor: color.DEFAULT_PRIMARY_COLOR,
   border: `1px solid ${color.ZINC[600]}`,
@@ -128,7 +128,11 @@ const ThirdPartyLoginButton = styled(Button)({
   "&:hover": {
     backgroundColor: color.ZINC[200],
   },
-});
+
+  [theme.breakpoints.between("tablet", "laptop")]: {
+    padding: "10px 15px",
+  },
+}));
 
 const Login = () => {
   const navigate = useNavigate();
