@@ -13,8 +13,6 @@ import {
 } from "@mui/material";
 import { common } from "@mui/material/colors";
 import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
-import { FaGoogle, FaFacebook } from "react-icons/fa";
-import { IoLogoMicrosoft } from "react-icons/io5";
 
 import { useAuthStore } from "./store";
 import { useErrorHandler } from "../../hooks";
@@ -24,6 +22,9 @@ import { Layout } from "../../layouts";
 import { color } from "../../constants";
 import { formatRules } from "../../utils/validation";
 import { useGlobalStore } from "../../store";
+
+import ThirdPartyAuth from "./ThirdPartyAuth";
+import { ErrorCode } from "../../enums";
 
 type LoginForm = {
   email: string;
@@ -63,7 +64,7 @@ const LoginContent = styled(Box)(({ theme }) => ({
     margin: "auto",
   },
   [theme.breakpoints.down("tablet")]: {
-    width: "80%",
+    width: "250px",
     margin: "auto",
   },
 }));
@@ -119,22 +120,6 @@ const SubmitButton = styled(Button)({
   },
 });
 
-const ThirdPartyLoginButton = styled(Button)(({ theme }) => ({
-  padding: "10px 80px",
-  backgroundColor: color.DEFAULT_PRIMARY_COLOR,
-  border: `1px solid ${color.ZINC[600]}`,
-  color: color.DEFAULT_TEXT_COLOR,
-  justifyContent: "flex-start",
-  fontWeight: 500,
-  "&:hover": {
-    backgroundColor: color.ZINC[200],
-  },
-
-  [theme.breakpoints.between("tablet", "laptop")]: {
-    padding: "10px 15px",
-  },
-}));
-
 const Login = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -170,7 +155,7 @@ const Login = () => {
     } catch (error) {
       const appError = error as AppError;
 
-      if (appError.code === "INVALID_CREDENTIALS") {
+      if (appError.code === ErrorCode.INVALID_CREDENTIALS) {
         setErrorMessage(t("loginForm.invalidCredentials"));
       } else {
         handleError(error as Error);
@@ -308,41 +293,7 @@ const Login = () => {
                   />
                 }
               />
-              <ThirdPartyLoginButton
-                size="large"
-                variant="contained"
-                fullWidth
-                text={t("loginWithFacebook")}
-                textType="body-2"
-                startIcon={<FaFacebook size={24} style={{ marginRight: 10 }} />}
-                onClick={() => {
-                  alert("Facebook login is not supported yet.");
-                }}
-              />
-              <ThirdPartyLoginButton
-                size="large"
-                variant="contained"
-                fullWidth
-                text={t("loginWithGoogle")}
-                textType="body-2"
-                startIcon={<FaGoogle size={24} style={{ marginRight: 10 }} />}
-                onClick={() => {
-                  alert("Google login is not supported yet.");
-                }}
-              />
-              <ThirdPartyLoginButton
-                size="large"
-                variant="contained"
-                fullWidth
-                text={t("loginWithMicrosoft")}
-                textType="body-2"
-                startIcon={
-                  <IoLogoMicrosoft size={24} style={{ marginRight: 10 }} />
-                }
-                onClick={() => {
-                  alert("Microsoft login is not supported yet.");
-                }}
-              />
+              <ThirdPartyAuth />
             </LoginContent>
           </FormProvider>
         </LoginForm>
