@@ -164,7 +164,7 @@ const Register: FC = () => {
   return (
     <Layout>
       <RegisterContainer>
-        <RegisterForm>
+        <RegisterForm onSubmit={handleSubmit}>
           <FormProvider {...form}>
             <Title type="heading-3">{t("register")}</Title>
             <RegisterContent>
