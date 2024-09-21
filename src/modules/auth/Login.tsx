@@ -60,7 +60,7 @@ const LoginContent = styled(Box)(({ theme }) => ({
     width: "400px",
   },
   [theme.breakpoints.between("tablet", "laptop")]: {
-    width: "250px",
+    width: "400px",
     margin: "auto",
   },
   [theme.breakpoints.down("tablet")]: {

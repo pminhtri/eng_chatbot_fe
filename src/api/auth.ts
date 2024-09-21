@@ -12,3 +12,15 @@ export const login = async ({
 
   return data;
 };
+
+export const register = async ({
+  email,
+  password,
+}: UserCredentials): Promise<AccessToken> => {
+  const { data } = await axiosClient.post<AccessToken>("/auth/signup", {
+    email,
+    password,
+  });
+
+  return data;
+}

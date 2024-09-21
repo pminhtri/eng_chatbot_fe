@@ -1,10 +1,11 @@
 import { create } from "zustand";
-import { login } from "../../api";
+import { login, register } from "../../api";
 
 type StateValue = {};
 
 type Actions = {
   login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string) => Promise<void>;
   logout: () => void;
 };
 
@@ -22,6 +23,9 @@ const useStore = create<AuthStore>(() => ({
       const { accessToken } = await login({ email, password });
 
       localStorage.setItem("accessToken", accessToken);
+    },
+    register: async (email: string, password: string) => {
+      await register({ email, password });
     },
     logout: () => {
       localStorage.removeItem("accessToken");

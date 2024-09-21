@@ -61,7 +61,7 @@ const RegisterContent = styled(Box)(({ theme }) => ({
     width: "400px",
     margin: "auto",
   },
-  [theme.breakpoints.down("tablet")]: {
+  [theme.breakpoints.down("mobile")]: {
     width: "250px",
     margin: "auto",
   },

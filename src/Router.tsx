@@ -5,9 +5,9 @@ import configs from "./configs";
 import { i18n } from "./utils";
 import { useGlobalStore } from "./store";
 import { Login, Register } from "./modules/auth";
-import { LandingPage } from "./modules/landingPage";
 import { useErrorHandler } from "./hooks";
 import { AppError } from "./types";
+import { LandingPage, PublicEChat } from "./modules/landingPage";
 
 const parseJwt = (accessToken: string) => {
   try {
@@ -114,6 +114,14 @@ function Router() {
       />
       <Route
         path="/"
+        element={
+          <UnauthenticatedRoute>
+            <PublicEChat />
+          </UnauthenticatedRoute>
+        }
+      />
+      <Route
+        path="/landing-page"
         element={
           <AuthenticatedRoute>
             <LandingPage />
