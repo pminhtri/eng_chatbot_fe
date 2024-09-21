@@ -58,6 +58,19 @@ function UnauthenticatedRoute({ children }: { children: React.ReactNode }) {
   return children;
 }
 
+function ReceiveThirdPartyTokenRoute(){
+  const {
+    actions: { fetchCurrentUser },
+  } = useGlobalStore();
+  if(document.cookie && document.referrer === "https://accounts.google.com/"){
+    localStorage.setItem("accessToken",document.cookie.split("=")[1]);
+    fetchCurrentUser()
+    .then(()=> {return <Navigate to="/" replace />})
+    .catch(()=> {throw new Error})
+  }
+  return <Navigate to="/auth/login" replace />; 
+}
+
 function Router() {
   useEffect(() => {
     const loadLanguage = async () => {
@@ -84,6 +97,10 @@ function Router() {
             <Register />
           </UnauthenticatedRoute>
         }
+      />
+      <Route
+        path="/auth/third-party-token"
+        element={<ReceiveThirdPartyTokenRoute/>}
       />
       <Route
         path="/"

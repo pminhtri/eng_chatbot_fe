@@ -6,6 +6,7 @@ import { IoLogoMicrosoft } from "react-icons/io5";
 
 import { Button } from "../../components/ui";
 import { color } from "../../constants";
+import { axiosClient } from "../../utils";
 
 const ThirdPartyLoginButton = styled(Button)(({ theme }) => ({
   padding: "10px 80px",
@@ -25,7 +26,6 @@ const ThirdPartyLoginButton = styled(Button)(({ theme }) => ({
 
 const ThirdPartyAuth: FC = () => {
   const { t } = useTranslation();
-
   return (
     <div>
       <ThirdPartyLoginButton
@@ -46,8 +46,9 @@ const ThirdPartyAuth: FC = () => {
         text={t("loginWithGoogle")}
         textType="body-2"
         startIcon={<FaGoogle size={24} style={{ marginRight: 10 }} />}
-        onClick={() => {
-          alert("Google login is not supported yet.");
+        onClick={async () => {
+          const response = await axiosClient.get("/auth/google")
+          window.location.href = response.data
         }}
       />
       <ThirdPartyLoginButton
