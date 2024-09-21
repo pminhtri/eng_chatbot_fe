@@ -15,13 +15,14 @@ import { color } from "../../constants";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Controller, FormProvider, useForm } from "react-hook-form";
-import { useErrorHandler } from "../../hooks";
+import { useAlert, useErrorHandler } from "../../hooks";
 import { AppError } from "../../types";
 import { ErrorCode } from "../../enums";
 import { Layout } from "../../layouts";
 import { formatRules } from "../../utils/validation";
 import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
 import ThirdPartyAuth from "./ThirdPartyAuth";
+import { useAuthStore } from "./store";
 
 type RegisterForm = {
   email: string;
@@ -121,6 +122,10 @@ const SubmitButton = styled(Button)({
 const Register: FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const {
+    actions: { register },
+  } = useAuthStore();
+  const { showSuccessMessage } = useAlert();
   const { handleError } = useErrorHandler();
 
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -141,9 +146,10 @@ const Register: FC = () => {
   const handleSubmit = form.handleSubmit(async ({ email, password }) => {
     try {
       setExecuting(true);
-      console.log(email, password);
+      await register(email, password);
+      showSuccessMessage(t("Register Successfully!"));
       setExecuting(false);
-      navigate("/login");
+      navigate("/auth/login");
     } catch (error) {
       const appError = error as AppError;
 

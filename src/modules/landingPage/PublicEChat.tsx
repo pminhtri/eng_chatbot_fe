@@ -27,6 +27,7 @@ const MessageBox = styled(Box)({
   width: "100%",
   height: "100%",
   padding: "16px",
+  gap: "8px",
   overflowY: "auto",
 });
 
@@ -81,9 +82,21 @@ export const PublicEChat: FC = () => {
       >
         <MessageBox>
           {messages.map((message, index) => (
-            <Typography key={index} variant="body1" gutterBottom>
-              {message}
-            </Typography>
+            <Box display="flex" width="100%" justifyContent="flex-end">
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                width="fit-content"
+                bgcolor={color.ZINC[200]}
+                borderRadius="16px"
+                padding="8px 16px"
+              >
+                <Typography key={index} variant="body1" gutterBottom>
+                  {message}
+                </Typography>
+              </Box>
+            </Box>
           ))}
         </MessageBox>
         <Input
