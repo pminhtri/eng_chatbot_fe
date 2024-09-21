@@ -6,6 +6,8 @@ import { i18n } from "./utils";
 import { useGlobalStore } from "./store";
 import { Login, Register } from "./modules/auth";
 import { LandingPage } from "./modules/landingPage";
+import { useErrorHandler } from "./hooks";
+import { AppError } from "./types";
 
 const parseJwt = (accessToken: string) => {
   try {
@@ -58,17 +60,25 @@ function UnauthenticatedRoute({ children }: { children: React.ReactNode }) {
   return children;
 }
 
-function ReceiveThirdPartyTokenRoute(){
+function ReceiveThirdPartyTokenRoute() {
   const {
     actions: { fetchCurrentUser },
   } = useGlobalStore();
-  if(document.cookie && document.referrer === "https://accounts.google.com/"){
-    localStorage.setItem("accessToken",document.cookie.split("=")[1]);
+
+  const { handleError } = useErrorHandler();
+
+  if (document.cookie && document.referrer === "https://accounts.google.com/") {
+    localStorage.setItem("accessToken", document.cookie.split("=")[1]);
+
     fetchCurrentUser()
-    .then(()=> {return <Navigate to="/" replace />})
-    .catch(()=> {throw new Error})
+      .then(() => {
+        return <Navigate to="/" replace />;
+      })
+      .catch((error) => {
+        handleError(error as AppError);
+      });
   }
-  return <Navigate to="/auth/login" replace />; 
+  return <Navigate to="/auth/login" replace />;
 }
 
 function Router() {
@@ -100,7 +110,7 @@ function Router() {
       />
       <Route
         path="/auth/third-party-token"
-        element={<ReceiveThirdPartyTokenRoute/>}
+        element={<ReceiveThirdPartyTokenRoute />}
       />
       <Route
         path="/"

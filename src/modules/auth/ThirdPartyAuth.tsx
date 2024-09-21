@@ -26,6 +26,13 @@ const ThirdPartyLoginButton = styled(Button)(({ theme }) => ({
 
 const ThirdPartyAuth: FC = () => {
   const { t } = useTranslation();
+
+  const handleLogin = async (provider: string) => {
+    const response = await axiosClient.get(`/auth/${provider}`);
+
+    window.location.href = response.data;
+  };
+
   return (
     <div>
       <ThirdPartyLoginButton
@@ -46,10 +53,7 @@ const ThirdPartyAuth: FC = () => {
         text={t("loginWithGoogle")}
         textType="body-2"
         startIcon={<FaGoogle size={24} style={{ marginRight: 10 }} />}
-        onClick={async () => {
-          const response = await axiosClient.get("/auth/google")
-          window.location.href = response.data
-        }}
+        onClick={async () => await handleLogin("google")}
       />
       <ThirdPartyLoginButton
         size="large"
