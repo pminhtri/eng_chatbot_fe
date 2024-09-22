@@ -19,6 +19,17 @@ const PublicChatContainer = styled(Box)({
   width: "100%",
 });
 
+const BoxGroup = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  height: "100%",
+  width: "60%",
+  padding: "16px",
+  [theme.breakpoints.down("tablet")]: {
+    width: "100%",
+  },
+}));
+
 const MessageBox = styled(Box)({
   display: "flex",
   flexDirection: "column",
@@ -73,13 +84,7 @@ export const PublicEChat: FC = () => {
 
   return (
     <PublicChatContainer>
-      <Box
-        display="flex"
-        flexDirection="column"
-        height="100%"
-        width="60%"
-        padding="16px"
-      >
+      <BoxGroup>
         <MessageBox>
           {messages.map((message, index) => (
             <Box display="flex" width="100%" justifyContent="flex-end">
@@ -87,7 +92,6 @@ export const PublicEChat: FC = () => {
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
-                width="fit-content"
                 bgcolor={color.ZINC[200]}
                 borderRadius="16px"
                 padding="8px 16px"
@@ -133,7 +137,7 @@ export const PublicEChat: FC = () => {
           }}
           onKeyDown={handleKeyDown}
         />
-      </Box>
+      </BoxGroup>
     </PublicChatContainer>
   );
 };
