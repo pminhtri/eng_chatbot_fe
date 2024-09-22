@@ -1,50 +1,56 @@
+import { FC, useEffect, useState } from "react";
 import { SendRounded } from "@mui/icons-material";
 import {
   Box,
   styled,
   TextField,
-  Typography,
   InputAdornment,
   IconButton,
 } from "@mui/material";
-import { FC, useState } from "react";
 import { color } from "../../constants";
+import { Header, Layout } from "../../layouts";
+import { Button, Typography } from "../../components/ui";
+import { useNavigate } from "react-router-dom";
 
 const PublicChatContainer = styled(Box)({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
-  height: "100vh",
+  height: "100%",
   width: "100%",
 });
 
-const BoxGroup = styled(Box)(({ theme }) => ({
+const MessageGroup = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
+  alignItems: "center",
+  gap: "8px",
   height: "100%",
-  width: "60%",
+  width: "100%",
   padding: "16px",
+  [theme.breakpoints.down("tablet")]: {
+    width: "100%",
+  },
+  overflowY: "auto",
+}));
+
+const BoxInput = styled(Box)(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  width: "60%",
+  paddingRight: "16px",
+  paddingLeft: "16px",
+  paddingBottom: "16px",
   [theme.breakpoints.down("tablet")]: {
     width: "100%",
   },
 }));
 
-const MessageBox = styled(Box)({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "flex-start",
-  justifyContent: "flex-start",
-  width: "100%",
-  height: "100%",
-  padding: "16px",
-  gap: "8px",
-  overflowY: "auto",
-});
-
 const Input = styled(TextField)(({ theme }) => ({
-  flex: 1,
   borderRadius: 25,
+  height: "fit-content",
   backgroundColor: color.ZINC[200],
   "& .MuiOutlinedInput-multiline": {
     padding: "8px 12px",
@@ -63,82 +69,152 @@ const Input = styled(TextField)(({ theme }) => ({
   },
 }));
 
+const LoginButton = styled(Button)({
+  padding: "6px",
+  backgroundColor: color.ZINC[800],
+  border: `1px solid ${color.ZINC[600]}`,
+  color: color.DEFAULT_SECONDARY_TEXT_COLOR,
+  "&:hover": {
+    backgroundColor: color.ZINC[700],
+  },
+});
+
+const RegisterButton = styled(Button)({
+  padding: "6px",
+  width: "fit-content",
+  backgroundColor: "transparent",
+  border: `1px solid ${color.ZINC[600]}`,
+  color: color.ZINC[600],
+  "&:hover": {
+    backgroundColor: color.ZINC[100],
+  },
+});
+
 export const PublicEChat: FC = () => {
-  const [messages, setMessages] = useState<string[]>([]);
+  const navigate = useNavigate();
+  const [messages, setMessages] = useState<
+    {
+      message: string;
+      isBot: boolean;
+    }[]
+  >([]);
   const [newMessage, setNewMessage] = useState<string>("");
   const [enableSend, setEnableSend] = useState<boolean>(false);
 
   const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      setMessages([...messages, newMessage]);
-      setNewMessage("");
-    }
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { message: newMessage, isBot: false },
+    ]);
+
+    setNewMessage("");
+    setEnableSend(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
 
+  useEffect(() => {
+    const messageGroup = document.getElementById("message-group");
+    if (messageGroup) {
+      messageGroup.scrollTop = messageGroup.scrollHeight;
+    }
+  }, [messages]);
+
   return (
-    <PublicChatContainer>
-      <BoxGroup>
-        <MessageBox>
-          {messages.map((message, index) => (
-            <Box display="flex" width="100%" justifyContent="flex-end">
+    <Layout
+      renderHeader={
+        <Header>
+          <Box display="flex" justifyContent="flex-end" width="100%" gap="10px">
+            <LoginButton
+              text="Login"
+              variant="contained"
+              onClick={() => navigate("/auth/login")}
+            />
+            <RegisterButton
+              text="Register"
+              variant="contained"
+              onClick={() => navigate("/auth/register")}
+            />
+          </Box>
+        </Header>
+      }
+    >
+      <PublicChatContainer>
+        <MessageGroup id="message-group">
+          {messages.map(({ message, isBot }, index) => (
+            <Box
+              key={index}
+              sx={(theme) => ({
+                display: "flex",
+                width: "60%",
+                justifyContent: isBot ? "flex-start" : "flex-end",
+                [theme.breakpoints.down("tablet")]: {
+                  width: "100%",
+                },
+              })}
+            >
               <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                bgcolor={color.ZINC[200]}
+                display="block"
+                width="fit-content"
+                maxWidth="60%"
+                textOverflow="initial"
+                whiteSpace="normal"
                 borderRadius="16px"
                 padding="8px 16px"
+                bgcolor={!isBot ? color.ZINC[200] : ""}
+                sx={{
+                  wordBreak: "break-word",
+                }}
               >
-                <Typography key={index} variant="body1" gutterBottom>
-                  {message}
-                </Typography>
+                <Typography type="body-1">{message}</Typography>
               </Box>
             </Box>
           ))}
-        </MessageBox>
-        <Input
-          fullWidth
-          variant="outlined"
-          placeholder="Message Chat..."
-          multiline
-          minRows={1}
-          maxRows={5}
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          onFocus={() => setEnableSend(true)}
-          sx={{
-            "& .MuiInputBase-root": {
-              color: "black",
-              "&:focus": {
+        </MessageGroup>
+        <BoxInput>
+          <Input
+            fullWidth
+            variant="outlined"
+            placeholder="Message Chat..."
+            multiline
+            minRows={1}
+            maxRows={5}
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onFocus={() => setEnableSend(true)}
+            sx={{
+              "& .MuiInputBase-root": {
+                padding: "8px 16px",
                 color: "black",
+                "&:focus": {
+                  color: "black",
+                },
               },
-            },
-          }}
-          slotProps={{
-            input: {
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    disabled={!enableSend || !newMessage.trim()}
-                    onClick={handleSendMessage}
-                  >
-                    <SendRounded />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            },
-          }}
-          onKeyDown={handleKeyDown}
-        />
-      </BoxGroup>
-    </PublicChatContainer>
+            }}
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      disabled={!enableSend || !newMessage.trim()}
+                      onClick={handleSendMessage}
+                    >
+                      <SendRounded />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+            onKeyDown={handleKeyDown}
+          />
+        </BoxInput>
+      </PublicChatContainer>
+    </Layout>
   );
 };
 
