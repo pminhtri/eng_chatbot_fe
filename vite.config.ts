@@ -7,15 +7,13 @@ export default defineConfig({
   plugins: [react()],
   build: {
     lib: {
-      entry: path.resolve(__dirname, 'src/index.ts'), // Entry point of your library
-      name: 'core-lib', // Name of your library
-      fileName: (format) => `core-lib.${format}.js`, // Output file name
+      entry: path.resolve(__dirname, 'src/index.ts'),
+      name: 'core-lib',
+      fileName: (format) => `core-lib.${format}.js`,
     },
     rollupOptions: {
-      // Ensure to externalize dependencies that shouldn't be bundled into your library
       external: ['react', 'react-dom'],
       output: {
-        // Provide global variables to use in the UMD build for externalized deps
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
