@@ -39,7 +39,7 @@ const BoxInput = styled(Box)(({ theme }) => ({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  width: "60%",
+  width: "50%",
   paddingRight: "16px",
   paddingLeft: "16px",
   paddingBottom: "16px",
@@ -146,35 +146,69 @@ export const PublicEChat: FC = () => {
     >
       <PublicChatContainer>
         <MessageGroup id="message-group">
-          {messages.map(({ message, isBot }, index) => (
-            <Box
-              key={index}
-              sx={(theme) => ({
-                display: "flex",
-                width: "60%",
-                justifyContent: isBot ? "flex-start" : "flex-end",
-                [theme.breakpoints.down("tablet")]: {
-                  width: "100%",
-                },
-              })}
-            >
+          {messages.length !== 0 &&
+            messages.map(({ message, isBot }, index) => (
               <Box
-                display="block"
-                width="fit-content"
-                maxWidth="60%"
-                textOverflow="initial"
-                whiteSpace="normal"
-                borderRadius="16px"
-                padding="8px 16px"
-                bgcolor={!isBot ? color.ZINC[200] : ""}
-                sx={{
-                  wordBreak: "break-word",
-                }}
+                key={index}
+                sx={(theme) => ({
+                  display: "flex",
+                  width: "50%",
+                  justifyContent: isBot ? "flex-start" : "flex-end",
+                  [theme.breakpoints.down("tablet")]: {
+                    width: "100%",
+                  },
+                })}
               >
-                <Typography type="body-1">{message}</Typography>
+                <Box
+                  display="block"
+                  width="fit-content"
+                  maxWidth="50%"
+                  textOverflow="initial"
+                  whiteSpace="normal"
+                  borderRadius="16px"
+                  padding="8px 16px"
+                  bgcolor={!isBot ? color.ZINC[200] : ""}
+                  sx={{
+                    wordBreak: "break-word",
+                  }}
+                >
+                  <Typography type="body-1">{message}</Typography>
+                </Box>
               </Box>
+            ))}
+          {messages.length === 0 && (
+            <Box
+              display="flex"
+              justifyContent="center"
+              width="50%"
+              height="100%"
+              sx={{
+                background:
+                  "linear-gradient(90deg, #ff7e5f, #feb47b, #6a11cb, #2575fc, #ff7e5f)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                animation: "gradient-animation 5s ease infinite",
+                backgroundSize: "300% 100%",
+                "@keyframes gradient-animation": {
+                  "0%": {
+                    backgroundPosition: "0% 50%",
+                  },
+                  "50%": {
+                    backgroundPosition: "100% 50%",
+                  },
+                  "100%": {
+                    backgroundPosition: "0% 50%",
+                  },
+                },
+              }}
+            >
+              <Typography type="heading-1">
+                Hello! Welcome to English Chatbot
+                <br />
+                How can I help you today?
+              </Typography>
             </Box>
-          ))}
+          )}
         </MessageGroup>
         <BoxInput>
           <Input
