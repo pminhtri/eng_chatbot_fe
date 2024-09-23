@@ -6,11 +6,13 @@ import {
   TextField,
   InputAdornment,
   IconButton,
+  Skeleton,
 } from "@mui/material";
 import { color } from "../../constants";
 import { Header, Layout } from "../../layouts";
 import { Button, Typography } from "../../components/ui";
 import { useNavigate } from "react-router-dom";
+import { publicChat } from "../../api";
 
 const PublicChatContainer = styled(Box)({
   display: "flex",
@@ -101,7 +103,7 @@ export const PublicEChat: FC = () => {
   const [newMessage, setNewMessage] = useState<string>("");
   const [enableSend, setEnableSend] = useState<boolean>(false);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     setMessages((prevMessages) => [
       ...prevMessages,
       { message: newMessage, isBot: false },
@@ -109,6 +111,12 @@ export const PublicEChat: FC = () => {
 
     setNewMessage("");
     setEnableSend(false);
+
+    const responseData = await publicChat({ message: newMessage });
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { message: responseData.response, isBot: true },
+    ]);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -167,7 +175,7 @@ export const PublicEChat: FC = () => {
                   whiteSpace="normal"
                   borderRadius="16px"
                   padding="8px 16px"
-                  bgcolor={!isBot ? color.ZINC[200] : ""}
+                  bgcolor={!isBot ? color.ZINC[200] : color.ZINC[300]}
                   sx={{
                     wordBreak: "break-word",
                   }}
