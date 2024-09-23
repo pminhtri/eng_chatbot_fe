@@ -20,7 +20,7 @@ const ThirdPartyLoginButton = styled(Button)(({ theme }) => ({
   },
 
   [theme.breakpoints.down("tablet")]: {
-    padding: "10px 15px",
+    padding: "10px 80px",
   },
 }));
 

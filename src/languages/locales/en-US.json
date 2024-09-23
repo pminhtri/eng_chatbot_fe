@@ -15,5 +15,6 @@
   "error.login": "Login failed",
   "error.pageNotFound": "Page not found",
   "error.somethingWentWrong": "Something went wrong",
-  "error.internal": "Internal server error"
+  "error.internal": "Internal server error",
+  "defaultContent": "Hello! Welcome to English Chatbot! \nHow can I help you today?"
 }

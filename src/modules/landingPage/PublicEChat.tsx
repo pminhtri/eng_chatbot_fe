@@ -7,12 +7,18 @@ import {
   InputAdornment,
   IconButton,
   Skeleton,
+  keyframes,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import { color } from "../../constants";
 import { Header, Layout } from "../../layouts";
 import { Button, Typography } from "../../components/ui";
 import { useNavigate } from "react-router-dom";
 import { publicChat } from "../../api";
+import { useErrorHandler } from "../../hooks";
+import { AppError } from "../../types";
+
+const SKELETON_ROWS = 5;
 
 const PublicChatContainer = styled(Box)({
   display: "flex",
@@ -92,34 +98,94 @@ const RegisterButton = styled(Button)({
   },
 });
 
+const typingAnimation = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
+
+const renderContentWithAnimation = (content: string) => {
+  const words = content.split(" ");
+
+  return words.map((word, index) => (
+    <Typography
+      key={index}
+      type="body-1"
+      sx={{
+        display: "inline-block",
+        opacity: 0,
+        animation: `${typingAnimation} 0.5s forwards`,
+        animationDelay: `${index * 0.1}s`,
+      }}
+    >
+      {word}&nbsp;
+    </Typography>
+  ));
+};
+
+const renderSkeletonResponse = () => (
+  <Box
+    sx={(theme) => ({
+      display: "flex",
+      width: "50%",
+      justifyContent: "flex-start",
+      [theme.breakpoints.down("tablet")]: {
+        width: "100%",
+      },
+    })}
+  >
+    <Box
+      display="block"
+      width="50%"
+      maxWidth="50%"
+      textOverflow="initial"
+      whiteSpace="normal"
+      borderRadius="16px"
+      padding="8px 16px"
+    >
+      {Array.from({ length: SKELETON_ROWS }).map((_, index) => (
+        <Skeleton key={index} animation="wave" />
+      ))}
+    </Box>
+  </Box>
+);
+
 export const PublicEChat: FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { handleError } = useErrorHandler();
   const [messages, setMessages] = useState<
     {
-      message: string;
+      content: string;
       isBot: boolean;
     }[]
   >([]);
   const [newMessage, setNewMessage] = useState<string>("");
   const [enableSend, setEnableSend] = useState<boolean>(false);
+  const [isResponding, setIsResponding] = useState<boolean>(false);
 
   const handleSendMessage = async () => {
+    if (!newMessage.trim()) {
+      return;
+    }
+
     setMessages((prevMessages) => [
       ...prevMessages,
-      { message: newMessage, isBot: false },
+      { content: newMessage, isBot: false },
     ]);
 
     setNewMessage("");
     setEnableSend(false);
-
-    const responseData = await publicChat({ message: newMessage });
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { message: responseData.response, isBot: true },
-    ]);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (isResponding) {
+      return;
+    }
+
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -131,6 +197,35 @@ export const PublicEChat: FC = () => {
     if (messageGroup) {
       messageGroup.scrollTop = messageGroup.scrollHeight;
     }
+  }, [messages]);
+
+  useEffect(() => {
+    (async () => {
+      if (messages.length === 0) {
+        return;
+      }
+
+      const lastMessage = messages[messages.length - 1];
+
+      if (lastMessage.isBot) {
+        return;
+      }
+
+      setIsResponding(true);
+
+      try {
+        const { response } = await publicChat({ message: lastMessage.content });
+
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { content: response, isBot: true },
+        ]);
+      } catch (error) {
+        handleError(error as AppError);
+      } finally {
+        setIsResponding(false);
+      }
+    })();
   }, [messages]);
 
   return (
@@ -155,7 +250,7 @@ export const PublicEChat: FC = () => {
       <PublicChatContainer>
         <MessageGroup id="message-group">
           {messages.length !== 0 &&
-            messages.map(({ message, isBot }, index) => (
+            messages.map(({ content, isBot }, index) => (
               <Box
                 key={index}
                 sx={(theme) => ({
@@ -180,10 +275,15 @@ export const PublicEChat: FC = () => {
                     wordBreak: "break-word",
                   }}
                 >
-                  <Typography type="body-1">{message}</Typography>
+                  {isBot && index === messages.length - 1 ? (
+                    renderContentWithAnimation(content)
+                  ) : (
+                    <Typography type="body-1">{content}</Typography>
+                  )}
                 </Box>
               </Box>
             ))}
+          {isResponding && renderSkeletonResponse()}
           {messages.length === 0 && (
             <Box
               display="flex"
@@ -210,11 +310,7 @@ export const PublicEChat: FC = () => {
                 },
               }}
             >
-              <Typography type="heading-1">
-                Hello! Welcome to English Chatbot
-                <br />
-                How can I help you today?
-              </Typography>
+              <Typography type="heading-1">{t("defaultContent")}</Typography>
             </Box>
           )}
         </MessageGroup>
@@ -243,7 +339,9 @@ export const PublicEChat: FC = () => {
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
-                      disabled={!enableSend || !newMessage.trim()}
+                      disabled={
+                        !enableSend || !newMessage.trim() || isResponding
+                      }
                       onClick={handleSendMessage}
                     >
                       <SendRounded />
