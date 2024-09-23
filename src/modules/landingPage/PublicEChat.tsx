@@ -42,11 +42,11 @@ const BoxInput = styled(Box)(({ theme }) => ({
   justifyContent: "center",
   alignItems: "center",
   width: "50%",
-  paddingRight: "16px",
-  paddingLeft: "16px",
+  paddingTop: "8px",
   paddingBottom: "16px",
   [theme.breakpoints.down("tablet")]: {
     width: "100%",
+    padding: "16px",
   },
 }));
 
