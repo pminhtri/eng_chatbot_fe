@@ -160,6 +160,8 @@ const Login = () => {
       } else {
         handleError(error as Error);
       }
+    } finally {
+      setExecuting(false);
     }
   });
 
