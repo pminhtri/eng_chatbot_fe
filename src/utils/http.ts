@@ -1,9 +1,10 @@
 import axios from "axios";
 import { AppError } from "../types";
 import { ErrorCode } from "../enums";
+import configs from "../../src/configs";
 
 const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_APP_API_URL,
+  baseURL: configs.VITE_APP_API_URL,
 });
 
 axiosClient.interceptors.request.use(

@@ -1,0 +1,24 @@
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+}
+
+/* width scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* Handle scrollbar */
+::-webkit-scrollbar-thumb {
+  background: #cbcaca;
+  border-radius: 10px;
+}
+
+/* Handle on hover scrollbar */
+::-webkit-scrollbar-thumb:hover {
+  background: #a4a3a3;
+}

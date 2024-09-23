@@ -60,10 +60,10 @@ const LoginContent = styled(Box)(({ theme }) => ({
     width: "400px",
   },
   [theme.breakpoints.between("tablet", "laptop")]: {
-    width: "250px",
+    width: "400px",
     margin: "auto",
   },
-  [theme.breakpoints.down("tablet")]: {
+  [theme.breakpoints.down("mobile")]: {
     width: "250px",
     margin: "auto",
   },
@@ -160,6 +160,8 @@ const Login = () => {
       } else {
         handleError(error as Error);
       }
+    } finally {
+      setExecuting(false);
     }
   });
 
