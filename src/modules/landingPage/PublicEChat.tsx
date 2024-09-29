@@ -140,7 +140,7 @@ const renderSkeletonResponse = () => (
     <Box
       display="block"
       width="50%"
-      maxWidth="50%"
+      maxWidth="70%"
       textOverflow="initial"
       whiteSpace="normal"
       borderRadius="16px"
@@ -265,7 +265,7 @@ export const PublicEChat: FC = () => {
                 <Box
                   display="block"
                   width="fit-content"
-                  maxWidth="50%"
+                  maxWidth="70%"
                   textOverflow="initial"
                   whiteSpace="normal"
                   borderRadius="16px"
