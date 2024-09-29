@@ -41,7 +41,7 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!currentUser && !accessToken) {
-    return <Navigate to="/auth/login" replace />;
+    return <Navigate to="/public" replace />;
   }
 
   return children;
@@ -82,10 +82,6 @@ function ReceiveThirdPartyTokenRoute() {
 }
 
 function Router() {
-  const {
-    value: { currentUser },
-  } = useGlobalStore();
-
   useEffect(() => {
     const loadLanguage = async () => {
       await i18n.changeLanguage(configs.DEFAULT_LANGUAGE_CODE);
@@ -119,17 +115,17 @@ function Router() {
       <Route
         path="/"
         element={
-          <>
-            {currentUser && localStorage.getItem("accessToken") ? (
-              <AuthenticatedRoute>
-                <LandingPage />
-              </AuthenticatedRoute>
-            ) : (
-              <UnauthenticatedRoute>
-                <PublicEChat />
-              </UnauthenticatedRoute>
-            )}
-          </>
+          <AuthenticatedRoute>
+            <LandingPage />
+          </AuthenticatedRoute>
+        }
+      />
+      <Route
+        path="/public"
+        element={
+          <UnauthenticatedRoute>
+            <PublicEChat />
+          </UnauthenticatedRoute>
         }
       />
       <Route path="*" element={<PageNotFound />} />
