@@ -82,6 +82,10 @@ function ReceiveThirdPartyTokenRoute() {
 }
 
 function Router() {
+  const {
+    value: { currentUser },
+  } = useGlobalStore();
+
   useEffect(() => {
     const loadLanguage = async () => {
       await i18n.changeLanguage(configs.DEFAULT_LANGUAGE_CODE);
@@ -115,17 +119,17 @@ function Router() {
       <Route
         path="/"
         element={
-          <UnauthenticatedRoute>
-            <PublicEChat />
-          </UnauthenticatedRoute>
-        }
-      />
-      <Route
-        path="/landing-page"
-        element={
-          <AuthenticatedRoute>
-            <LandingPage />
-          </AuthenticatedRoute>
+          <>
+            {currentUser && localStorage.getItem("accessToken") ? (
+              <AuthenticatedRoute>
+                <LandingPage />
+              </AuthenticatedRoute>
+            ) : (
+              <UnauthenticatedRoute>
+                <PublicEChat />
+              </UnauthenticatedRoute>
+            )}
+          </>
         }
       />
       <Route path="*" element={<PageNotFound />} />
