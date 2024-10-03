@@ -12,6 +12,7 @@ const LandingPage: FC = () => {
   const {
     actions: { logout },
   } = useAuthStore();
+  
   const {
     value: { currentUser },
   } = useGlobalStore();
