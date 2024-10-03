@@ -19,6 +19,7 @@ import { useErrorHandler } from "../../hooks";
 import { AppError } from "../../types";
 
 const SKELETON_ROWS = 5;
+const TYPING_SPEED = 20;
 
 const PublicChatContainer = styled(Box)({
   display: "flex",
@@ -98,8 +99,49 @@ const RegisterButton = styled(Button)({
   },
 });
 
-const renderContentWithAnimation = (content: string) => {
-  return <Markdown>{content}</Markdown>;
+const TypingMarkdown: FC<{ content: string; isAnimating: boolean }> = ({
+  content,
+  isAnimating,
+}) => {
+  const [displayedText, setDisplayedText] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    if (isAnimating) {
+      setDisplayedText("");
+      setCurrentIndex(0);
+    }
+  }, [content, isAnimating]);
+
+  useEffect(() => {
+    if (isAnimating && currentIndex < content.length) {
+      const timeoutId = setTimeout(() => {
+        setDisplayedText((prev) => prev + content[currentIndex]);
+        setCurrentIndex(currentIndex + 1);
+      }, TYPING_SPEED);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [currentIndex, content, isAnimating]);
+
+  return (
+    <Markdown
+      components={{
+        p: (props) => (
+          <p
+            style={{
+              margin: 0,
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            {props.children}
+          </p>
+        ),
+      }}
+    >
+      {isAnimating ? displayedText : content}
+    </Markdown>
+  );
 };
 
 const renderSkeletonResponse = () => (
@@ -251,19 +293,10 @@ export const PublicEChat: FC = () => {
                     wordBreak: "break-word",
                   }}
                 >
-                  {isBot && index === messages.length - 1 ? (
-                    renderContentWithAnimation(content)
-                  ) : (
-                    <Markdown
-                      components={{
-                        p: (props) => (
-                          <p style={{ margin: 0 }}>{props.children}</p>
-                        ),
-                      }}
-                    >
-                      {content}
-                    </Markdown>
-                  )}
+                  <TypingMarkdown
+                    content={content}
+                    isAnimating={isBot && index === messages.length - 1}
+                  />
                 </Box>
               </Box>
             ))}
