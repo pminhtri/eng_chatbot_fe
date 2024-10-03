@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAlert } from "./useAlert";
 import { AppError } from "../types";
@@ -9,7 +8,6 @@ type ReturnType = {
 };
 
 export const useErrorHandler = (): ReturnType => {
-  const { t } = useTranslation();
   const { showErrorMessage } = useAlert();
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,7 +33,7 @@ export const useErrorHandler = (): ReturnType => {
       }
     }
 
-    return showErrorMessage(t("error.internal"));
+    return showErrorMessage(error.message);
   };
 
   return { handleError };
