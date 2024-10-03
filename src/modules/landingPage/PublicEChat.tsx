@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from "react";
-import Markdown from 'react-markdown'
+import Markdown from "react-markdown";
 import { SendRounded } from "@mui/icons-material";
 import {
   Box,
@@ -8,7 +8,6 @@ import {
   InputAdornment,
   IconButton,
   Skeleton,
-  keyframes,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { color } from "../../constants";
@@ -99,17 +98,8 @@ const RegisterButton = styled(Button)({
   },
 });
 
-const typingAnimation = keyframes`
-  from {
-    width: 0;
-  }
-  to {
-    width: 100%;
-  }
-`;
-
 const renderContentWithAnimation = (content: string) => {
-  return <Markdown>{content}</Markdown>
+  return <Markdown>{content}</Markdown>;
 };
 
 const renderSkeletonResponse = () => (
@@ -260,14 +250,19 @@ export const PublicEChat: FC = () => {
                   sx={{
                     wordBreak: "break-word",
                   }}
-                  
                 >
                   {isBot && index === messages.length - 1 ? (
                     renderContentWithAnimation(content)
                   ) : (
-                    <Markdown components={{
-                      p: (props) => <p style={{margin:0}}>{props.children}</p>
-                    }}>{content}</Markdown>
+                    <Markdown
+                      components={{
+                        p: (props) => (
+                          <p style={{ margin: 0 }}>{props.children}</p>
+                        ),
+                      }}
+                    >
+                      {content}
+                    </Markdown>
                   )}
                 </Box>
               </Box>
