@@ -20,11 +20,24 @@ const parseJwt = (accessToken: string) => {
 const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
   const {
     value: { currentUser },
+    actions: { fetchCurrentUser },
   } = useGlobalStore();
   const location = useLocation();
-  const accessToken = localStorage.getItem("accessToken") || "";
-
+  const { handleError } = useErrorHandler();
+  const [accessToken, setAccessToken] = useState(
+    localStorage.getItem("accessToken") || ""
+  );
   const [isAccessTokenExpired, setIsAccessTokenExpired] = useState(false);
+  const [error, setError] = useState<AppError | null>(null);
+  const [fetchingCurrentUser, setFetchingCurrentUser] = useState(true);
+
+  useEffect(() => {
+    if (document.cookie) {
+      localStorage.setItem("accessToken", document.cookie.split("=")[1]);
+
+      setAccessToken(document.cookie.split("=")[1]);
+    }
+  }, [document.cookie]);
 
   useEffect(() => {
     const decodedJwt = parseJwt(accessToken);
@@ -33,6 +46,32 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
       setIsAccessTokenExpired(true);
     }
   }, [accessToken, location]);
+
+  useEffect(() => {
+    (async () => {
+      if (accessToken) {
+        try {
+          await fetchCurrentUser();
+        } catch (error) {
+          setError(error as AppError);
+        } finally {
+          setFetchingCurrentUser(false);
+        }
+      } else {
+        setFetchingCurrentUser(false);
+      }
+    })();
+  }, [accessToken]);
+
+  if (fetchingCurrentUser) {
+    return <></>;
+  }
+
+  if (error) {
+    handleError(error);
+
+    return <Navigate to="/auth/login" replace />;
+  }
 
   if (isAccessTokenExpired) {
     localStorage.removeItem("accessToken");
@@ -58,27 +97,6 @@ function UnauthenticatedRoute({ children }: { children: React.ReactNode }) {
   }
 
   return children;
-}
-
-function ReceiveThirdPartyTokenRoute() {
-  const {
-    actions: { fetchCurrentUser },
-  } = useGlobalStore();
-
-  const { handleError } = useErrorHandler();
-
-  if (document.cookie && document.referrer === "https://accounts.google.com/") {
-    localStorage.setItem("accessToken", document.cookie.split("=")[1]);
-
-    fetchCurrentUser()
-      .then(() => {
-        return <Navigate to="/" replace />;
-      })
-      .catch((error) => {
-        handleError(error as AppError);
-      });
-  }
-  return <Navigate to="/auth/login" replace />;
 }
 
 function Router() {
@@ -107,10 +125,6 @@ function Router() {
             <Register />
           </UnauthenticatedRoute>
         }
-      />
-      <Route
-        path="/auth/third-party-token"
-        element={<ReceiveThirdPartyTokenRoute />}
       />
       <Route
         path="/"
