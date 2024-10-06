@@ -33,7 +33,7 @@ export const PageNotFound = () => {
     window.history.replaceState(
       {},
       "Page Not Found",
-      location.state.prevRoute.pathname,
+      location.state.prevRoute.pathname
     );
   }
 
@@ -42,7 +42,7 @@ export const PageNotFound = () => {
       <Typography type="heading-1">404</Typography>
       <Typography type="title-1">{t("error.pageNotFound")}</Typography>
       <Link to="/auth/login">
-        <Button variant="contained" text={t("backToLogin")} />
+        <Button variant="contained" text={t("back")} />
       </Link>
     </PageNotFoundContainer>
   );

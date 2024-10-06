@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { del } from "idb-keyval";
 import { PageNotFound } from "./errors";
 import configs from "./configs";
 import { i18n } from "./utils";
@@ -8,6 +9,7 @@ import { Login, Register } from "./modules/auth";
 import { useErrorHandler } from "./hooks";
 import { AppError } from "./types";
 import { LandingPage, PublicEChat } from "./modules/landingPage";
+import { Spinner } from "./components/ui";
 
 const parseJwt = (accessToken: string) => {
   try {
@@ -20,7 +22,7 @@ const parseJwt = (accessToken: string) => {
 const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
   const {
     value: { currentUser },
-    actions: { fetchCurrentUser },
+    actions: { clearStore, fetchCurrentUser },
   } = useGlobalStore();
   const location = useLocation();
   const { handleError } = useErrorHandler();
@@ -49,7 +51,7 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     (async () => {
-      if (accessToken) {
+      if (accessToken && !currentUser) {
         try {
           await fetchCurrentUser();
         } catch (error) {
@@ -61,20 +63,24 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
         setFetchingCurrentUser(false);
       }
     })();
-  }, [accessToken]);
+  }, [accessToken, currentUser]);
+
+  useEffect(() => {
+    (async () => {
+      if (isAccessTokenExpired) {
+        localStorage.removeItem("accessToken");
+        await del("global-store");
+        clearStore();
+      }
+    })();
+  }, [isAccessTokenExpired]);
 
   if (fetchingCurrentUser) {
-    return <></>;
+    return <Spinner />;
   }
 
   if (error) {
     handleError(error);
-
-    return <Navigate to="/auth/login" replace />;
-  }
-
-  if (isAccessTokenExpired) {
-    localStorage.removeItem("accessToken");
 
     return <Navigate to="/auth/login" replace />;
   }
@@ -87,12 +93,9 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 function UnauthenticatedRoute({ children }: { children: React.ReactNode }) {
-  const {
-    value: { currentUser },
-  } = useGlobalStore();
   const accessToken = localStorage.getItem("accessToken");
 
-  if (currentUser && accessToken) {
+  if (accessToken) {
     return <Navigate to="/" replace />;
   }
 
