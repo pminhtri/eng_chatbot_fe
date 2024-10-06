@@ -1,12 +1,12 @@
 import { create } from "zustand";
-import { login, register } from "../../api";
+import { login, register, logout } from "../../api";
 
 type StateValue = {};
 
 type Actions = {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 };
 
 type AuthStore = {
@@ -27,7 +27,15 @@ const useStore = create<AuthStore>(() => ({
     register: async (email: string, password: string) => {
       await register({ email, password });
     },
-    logout: () => {
+    logout: async () => {
+      await logout();
+
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .trim()
+          .replace(/=.*/, "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/");
+      });
+
       localStorage.removeItem("accessToken");
     },
   },

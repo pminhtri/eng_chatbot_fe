@@ -19,7 +19,7 @@ import { useErrorHandler } from "../../hooks";
 import { AppError } from "../../types";
 
 const SKELETON_ROWS = 5;
-const TYPING_SPEED = 20;
+const TYPING_SPEED = 10;
 
 const PublicChatContainer = styled(Box)({
   display: "flex",
@@ -213,7 +213,8 @@ export const PublicEChat: FC = () => {
   useEffect(() => {
     const messageGroup = document.getElementById("message-group");
     if (messageGroup) {
-      messageGroup.scrollTop = messageGroup.scrollHeight;
+      messageGroup.scrollTop =
+        messageGroup.scrollHeight - messageGroup.clientHeight;
     }
   }, [messages]);
 

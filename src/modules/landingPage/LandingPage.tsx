@@ -12,13 +12,13 @@ const LandingPage: FC = () => {
   const {
     actions: { logout },
   } = useAuthStore();
-  
+
   const {
     value: { currentUser },
   } = useGlobalStore();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     del("global-store");
     navigate("/auth/login");
   };

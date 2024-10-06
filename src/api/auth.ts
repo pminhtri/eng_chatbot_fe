@@ -22,3 +22,7 @@ export const register = async ({
     password,
   });
 }
+
+export const logout = async (): Promise<void> => {
+  await axiosClient.get("/auth/logout");
+};
