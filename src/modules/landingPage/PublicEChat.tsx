@@ -12,8 +12,8 @@ import {
 import { useTranslation } from "react-i18next";
 import { color } from "../../constants";
 import { Header, Layout } from "../../layouts";
-import { Button, Typography } from "../../components/ui";
-import { useNavigate } from "react-router-dom";
+import { Typography } from "../../components/ui";
+// import { useNavigate } from "react-router-dom";
 import { publicChat } from "../../api";
 import { useErrorHandler } from "../../hooks";
 import { AppError } from "../../types";
@@ -78,26 +78,26 @@ const Input = styled(TextField)(({ theme }) => ({
   },
 }));
 
-const LoginButton = styled(Button)({
-  padding: "6px",
-  backgroundColor: color.ZINC[800],
-  border: `1px solid ${color.ZINC[600]}`,
-  color: color.DEFAULT_SECONDARY_TEXT_COLOR,
-  "&:hover": {
-    backgroundColor: color.ZINC[700],
-  },
-});
+// const LoginButton = styled(Button)({
+//   padding: "6px",
+//   backgroundColor: color.ZINC[800],
+//   border: `1px solid ${color.ZINC[600]}`,
+//   color: color.DEFAULT_SECONDARY_TEXT_COLOR,
+//   "&:hover": {
+//     backgroundColor: color.ZINC[700],
+//   },
+// });
 
-const RegisterButton = styled(Button)({
-  padding: "6px",
-  width: "fit-content",
-  backgroundColor: "transparent",
-  border: `1px solid ${color.ZINC[600]}`,
-  color: color.ZINC[600],
-  "&:hover": {
-    backgroundColor: color.ZINC[100],
-  },
-});
+// const RegisterButton = styled(Button)({
+//   padding: "6px",
+//   width: "fit-content",
+//   backgroundColor: "transparent",
+//   border: `1px solid ${color.ZINC[600]}`,
+//   color: color.ZINC[600],
+//   "&:hover": {
+//     backgroundColor: color.ZINC[100],
+//   },
+// });
 
 const TypingMarkdown: FC<{ content: string; isAnimating: boolean }> = ({
   content,
@@ -172,7 +172,7 @@ const renderSkeletonResponse = () => (
 );
 
 export const PublicEChat: FC = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { t } = useTranslation();
   const { handleError } = useErrorHandler();
   const [messages, setMessages] = useState<
@@ -251,7 +251,7 @@ export const PublicEChat: FC = () => {
     <Layout
       renderHeader={
         <Header>
-          <Box display="flex" justifyContent="flex-end" width="100%" gap="10px">
+          {/* <Box display="flex" justifyContent="flex-end" width="100%" gap="10px">
             <LoginButton
               text="Login"
               variant="contained"
@@ -262,7 +262,8 @@ export const PublicEChat: FC = () => {
               variant="contained"
               onClick={() => navigate("/auth/register")}
             />
-          </Box>
+          </Box> */}
+          <></>
         </Header>
       }
     >
