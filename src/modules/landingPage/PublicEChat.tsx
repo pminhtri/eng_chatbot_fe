@@ -8,12 +8,13 @@ import {
   InputAdornment,
   IconButton,
   Skeleton,
+  Grid2,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { color } from "../../constants";
 import { Header, Layout } from "../../layouts";
 import { Button, Typography } from "../../components/ui";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { publicChat } from "../../api";
 import { useErrorHandler } from "../../hooks";
 import { AppError } from "../../types";
@@ -172,7 +173,7 @@ const renderSkeletonResponse = () => (
 );
 
 export const PublicEChat: FC = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { t } = useTranslation();
   const { handleError } = useErrorHandler();
   const [messages, setMessages] = useState<
@@ -184,6 +185,34 @@ export const PublicEChat: FC = () => {
   const [newMessage, setNewMessage] = useState<string>("");
   const [enableSend, setEnableSend] = useState<boolean>(false);
   const [isResponding, setIsResponding] = useState<boolean>(false);
+
+  const bubbleItems: {
+    title: string;
+    content: string;
+  }[] = [
+    {
+      title: "Hello",
+      content: "Hello",
+    },
+    {
+      title: "Hello",
+      content: "Hello",
+    },
+    {
+      title: "Hello",
+      content: "Hello",
+    },
+    {
+      title: "Hello",
+      content: "Hello",
+    },
+  ];
+
+  const handleClickBubble = (content: string) => {
+    setMessages((prevMessages) => [...prevMessages, { content, isBot: false }]);
+    setNewMessage("");
+    setEnableSend(false);
+  };
 
   const handleSendMessage = async () => {
     if (!newMessage.trim()) {
@@ -311,30 +340,78 @@ export const PublicEChat: FC = () => {
           {messages.length === 0 && (
             <Box
               display="flex"
+              flexDirection="column"
               justifyContent="center"
+              alignItems="space-around"
               width="50%"
               height="100%"
-              sx={{
-                background:
-                  "linear-gradient(90deg, #ff7e5f, #feb47b, #6a11cb, #2575fc, #ff7e5f)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                animation: "gradient-animation 5s ease infinite",
-                backgroundSize: "300% 100%",
-                "@keyframes gradient-animation": {
-                  "0%": {
-                    backgroundPosition: "0% 50%",
-                  },
-                  "50%": {
-                    backgroundPosition: "100% 50%",
-                  },
-                  "100%": {
-                    backgroundPosition: "0% 50%",
-                  },
+              sx={(theme) => ({
+                [theme.breakpoints.down("tablet")]: {
+                  width: "100%",
                 },
-              }}
+              })}
             >
-              <Typography type="heading-1">{t("defaultContent")}</Typography>
+              <Box
+                display="flex"
+                justifyContent="center"
+                width="100%"
+                height="100%"
+                sx={{
+                  background:
+                    "linear-gradient(90deg, #ff7e5f, #feb47b, #6a11cb, #2575fc, #ff7e5f)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  animation: "gradient-animation 5s ease infinite",
+                  backgroundSize: "300% 100%",
+                  "@keyframes gradient-animation": {
+                    "0%": {
+                      backgroundPosition: "0% 50%",
+                    },
+                    "50%": {
+                      backgroundPosition: "100% 50%",
+                    },
+                    "100%": {
+                      backgroundPosition: "0% 50%",
+                    },
+                  },
+                }}
+              >
+                <Typography type="heading-2">{t("defaultContent")}</Typography>
+              </Box>
+              <Box sx={{ flexGrow: 1 }}>
+                <Grid2 container spacing={2}>
+                  {bubbleItems.map((item, index) => (
+                    <Grid2 key={index} size={6}>
+                      <Box
+                        display="flex"
+                        flexDirection="column"
+                        justifyContent="center"
+                        alignItems="flex-start"
+                        width="100%"
+                        border={`1px solid ${color.ZINC[300]}`}
+                        color={color.ZINC[800]}
+                        boxShadow="0px 2px 6px 0px rgba(97, 110, 124, 0.20)"
+                        borderRadius="12px"
+                        padding="4px 12px"
+                        sx={{
+                          ":hover": {
+                            cursor: "pointer",
+                            backgroundColor: color.ZINC[100],
+                            transition: "0.3s",
+                            transform: "scale(1.05)",
+                            boxShadow:
+                              "0px 4px 8px 0px rgba(97, 110, 124, 0.20)",
+                          },
+                        }}
+                        onClick={() => handleClickBubble(item.content)}
+                      >
+                        <Typography type="heading-3">{item.title}</Typography>
+                        <Typography type="body-1">{item.content}</Typography>
+                      </Box>
+                    </Grid2>
+                  ))}
+                </Grid2>
+              </Box>
             </Box>
           )}
         </MessageGroup>
