@@ -18,6 +18,7 @@ import { Button, Typography } from "../../components/ui";
 import { publicChat } from "../../api";
 import { useErrorHandler } from "../../hooks";
 import { AppError } from "../../types";
+import configs from "../../configs";
 
 const SKELETON_ROWS = 5;
 const TYPING_SPEED = 10;
@@ -39,7 +40,7 @@ const MessageGroup = styled(Box)(({ theme }) => ({
   height: "100%",
   width: "100%",
   padding: "16px",
-  [theme.breakpoints.down("tablet")]: {
+  [theme.breakpoints.down("laptop")]: {
     width: "100%",
   },
   overflowY: "auto",
@@ -52,6 +53,9 @@ const BoxInput = styled(Box)(({ theme }) => ({
   width: "50%",
   paddingTop: "8px",
   paddingBottom: "16px",
+  [theme.breakpoints.down("laptop")]: {
+    width: "100%",
+  },
   [theme.breakpoints.down("tablet")]: {
     width: "100%",
     padding: "16px",
@@ -73,6 +77,9 @@ const Input = styled(TextField)(({ theme }) => ({
     "& fieldset": {
       border: "none",
     },
+  },
+  [theme.breakpoints.down("laptop")]: {
+    width: "70%",
   },
   [theme.breakpoints.down("tablet")]: {
     width: "100%",
@@ -188,25 +195,9 @@ export const PublicEChat: FC = () => {
 
   const bubbleItems: {
     title: string;
+    description: string;
     content: string;
-  }[] = [
-    {
-      title: "Hello",
-      content: "Hello",
-    },
-    {
-      title: "Hello",
-      content: "Hello",
-    },
-    {
-      title: "Hello",
-      content: "Hello",
-    },
-    {
-      title: "Hello",
-      content: "Hello",
-    },
-  ];
+  }[] = configs.BUBBLE_CONTENT;
 
   const handleClickBubble = (content: string) => {
     setMessages((prevMessages) => [...prevMessages, { content, isBot: false }]);
@@ -346,6 +337,9 @@ export const PublicEChat: FC = () => {
               width="50%"
               height="100%"
               sx={(theme) => ({
+                [theme.breakpoints.down("laptop")]: {
+                  width: "70%",
+                },
                 [theme.breakpoints.down("tablet")]: {
                   width: "100%",
                 },
@@ -393,6 +387,9 @@ export const PublicEChat: FC = () => {
                         boxShadow="0px 2px 6px 0px rgba(97, 110, 124, 0.20)"
                         borderRadius="12px"
                         padding="4px 12px"
+                        gap={2}
+                        height="80px"
+                        whiteSpace="nowrap"
                         sx={{
                           ":hover": {
                             cursor: "pointer",
@@ -401,12 +398,25 @@ export const PublicEChat: FC = () => {
                             transform: "scale(1.05)",
                             boxShadow:
                               "0px 4px 8px 0px rgba(97, 110, 124, 0.20)",
+                            whiteSpace: "normal",
                           },
                         }}
                         onClick={() => handleClickBubble(item.content)}
                       >
-                        <Typography type="heading-3">{item.title}</Typography>
-                        <Typography type="body-1">{item.content}</Typography>
+                        <Box
+                          display="flex"
+                          justifyContent="center"
+                          alignContent="flex-start"
+                          width="100%"
+                          flexDirection="column"
+                          overflow="hidden"
+                          textOverflow="ellipsis"
+                        >
+                          <Typography type="title-3">{item.title}</Typography>
+                          <Typography type="body-1" display="block">
+                            {item.description}
+                          </Typography>
+                        </Box>
                       </Box>
                     </Grid2>
                   ))}

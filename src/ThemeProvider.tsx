@@ -100,11 +100,11 @@ export const ThemeProvider: React.FC<Props> = ({ children }) => {
         values: {
           mobile: 0,
           tablet: 640,
-          laptop: 1200,
+          laptop: 1280,
           desktop: 1920,
         },
       },
-    }),
+    })
   );
 
   useEffect(() => {
