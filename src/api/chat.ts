@@ -1,4 +1,11 @@
-import { PublicChatRequest, PublicChatResponse } from "../types";
+import { AxiosResponse } from "axios";
+import {
+  PrivateChatRequest,
+  PrivateChatResponse,
+  PublicChatRequest,
+  PublicChatResponse,
+  PrivateChatsFetch,
+} from "../types";
 import { axiosClient } from "../utils";
 
 export const publicChat = async ({
@@ -7,6 +14,29 @@ export const publicChat = async ({
   const { data } = await axiosClient.post<PublicChatResponse>("chat/public", {
     message,
   });
+
+  return data;
+};
+
+export const privateChat = async ({
+  chatData,
+  userId,
+}: PrivateChatRequest): Promise<PrivateChatResponse> => {
+  const { data } = await axiosClient.post<PrivateChatResponse>("chat/private", {
+    chatData,
+    userId,
+  });
+
+  return data;
+};
+
+export const fetchChatsByConversation = async (
+  conversationId: string | undefined,
+): Promise<PrivateChatsFetch> => {
+  const { data }: AxiosResponse = await axiosClient.get<PrivateChatsFetch>(
+    "chat",
+    { params: { conversationId },  }
+  );
 
   return data;
 };
