@@ -144,7 +144,12 @@ function Router() {
             <PublicEChat />
           </UnauthenticatedRoute>
         }
-      />
+      >
+        <Route
+          path="conversations/:conversationsId"
+          element={<LandingPage />}
+        />
+      </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
