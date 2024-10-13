@@ -89,10 +89,10 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode[] }) => {
   if (!currentUser && !accessToken) {
     return <Navigate to="/public" replace />;
   }
-  const isAdmin = currentUser?.role === "admin"
-  if(isAdmin)
-    return children[0]
-  return children[1]
+  const isAdmin = currentUser?.role === "admin";
+
+  if (isAdmin) return children[0];
+  return children[1];
 };
 
 function UnauthenticatedRoute({ children }: { children: React.ReactNode }) {
