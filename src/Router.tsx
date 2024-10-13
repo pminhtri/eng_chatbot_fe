@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { del } from "idb-keyval";
 import { PageNotFound } from "./errors";
@@ -10,6 +10,7 @@ import { useErrorHandler } from "./hooks";
 import { AppError } from "./types";
 import { LandingPage, PublicEChat } from "./modules/landingPage";
 import { Spinner } from "./components/ui";
+import { AdminPage } from "./modules/adminPage";
 
 const parseJwt = (accessToken: string) => {
   try {
@@ -19,7 +20,7 @@ const parseJwt = (accessToken: string) => {
   }
 };
 
-const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
+const AuthenticatedRoute = ({ children }: { children: React.ReactNode[] }) => {
   const {
     value: { currentUser },
     actions: { clearStore, fetchCurrentUser },
@@ -88,8 +89,11 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
   if (!currentUser && !accessToken) {
     return <Navigate to="/public" replace />;
   }
+  const isAdmin = currentUser?.role === "admin";
 
-  return children;
+  if (isAdmin) return children[0];
+
+  return children[1];
 };
 
 function UnauthenticatedRoute({ children }: { children: React.ReactNode }) {
@@ -127,6 +131,15 @@ function Router() {
           <UnauthenticatedRoute>
             <Register />
           </UnauthenticatedRoute>
+        }
+      />
+      <Route
+        path="/"
+        element={
+          <AuthenticatedRoute>
+            <AdminPage />
+            <LandingPage />
+          </AuthenticatedRoute>
         }
       />
       <Route
