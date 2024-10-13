@@ -92,6 +92,7 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode[] }) => {
   const isAdmin = currentUser?.role === "admin";
 
   if (isAdmin) return children[0];
+
   return children[1];
 };
 
