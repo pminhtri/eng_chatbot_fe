@@ -4,11 +4,17 @@ import { PageNotFound } from "./errors";
 import configs from "./configs";
 import { i18n } from "./utils";
 import { useGlobalStore } from "./store";
-import { Login, Register } from "./modules/auth";
 import { useErrorHandler } from "./hooks";
 import { AppError } from "./types";
 import { Spinner } from "./components/ui";
-import { Admin, PrivateChat, PublicEChat } from "./modules";
+import {
+  PublicEChat,
+  Login,
+  Register,
+  Admin,
+  ChatBox,
+  PrivateChat,
+} from "./modules";
 import { Role } from "./enums";
 
 export const Path = {
@@ -19,6 +25,7 @@ export const Path = {
   Admin: "/admin",
   PageNotFound: "/page-not-found",
   PermissionDenied: "/permission-denied",
+  Conversation: "/conversation",
 };
 
 const parseJwt = (accessToken: string) => {
@@ -181,7 +188,12 @@ function Router() {
             <PrivateChat />
           </AuthenticatedRoute>
         }
-      />
+      >
+        <Route
+          path={`${Path["Conversation"]}/:conversationId`}
+          element={<ChatBox />}
+        />
+      </Route>
       <Route path={Path["PageNotFound"]} element={<PageNotFound />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
