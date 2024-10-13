@@ -240,8 +240,8 @@ export const PrivateChat: FC<PrivateChatProps> = ({ conversationId }) => {
       try {
         if (conversationId) {
           const { paginatedChats, totalPages } = await fetchChatsByConversation(
-            conversationId,
-            page
+            page,
+            conversationId
           );
           if (paginatedChats.length === 0 || !totalPages) {
             return setIsAtTop(false);
@@ -269,7 +269,7 @@ export const PrivateChat: FC<PrivateChatProps> = ({ conversationId }) => {
                 mappedChats.push(mappedResponses[i]);
             }
 
-            setMessages((prevChats) => [...mappedChats, ...prevChats]);
+            setMessages(mappedChats);
             setMaxPages(totalPages);
           }
         }

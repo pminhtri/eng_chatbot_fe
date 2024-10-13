@@ -154,14 +154,12 @@ function Router() {
         path="/"
         element={
           <AuthenticatedRoute>
+            <></>
             <LandingPage />
           </AuthenticatedRoute>
         }
       >
-        <Route
-          path="/conversation/:conversationId"
-          element={<LandingPage />}
-        />
+        <Route path="/conversation/:conversationId" element={<LandingPage />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

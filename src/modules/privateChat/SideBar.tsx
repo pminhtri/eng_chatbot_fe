@@ -78,11 +78,10 @@ type SideBarProps = {
 };
 
 export const SideBar: FC<SideBarProps> = ({ conversationsData }) => {
-  const [isResponding, setIsResponding] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(true);
 
   const handleToggleDrawer = () => {
-    // setIsOpen(!isOpen);
+    setIsOpen(!isOpen);
   };
 
   return (
@@ -94,7 +93,7 @@ export const SideBar: FC<SideBarProps> = ({ conversationsData }) => {
       </DrawerHeader>
       <Divider />
       <List>
-        {conversationsData?.map(({ name, _id, createdAt }) => (
+        {conversationsData?.map(({ name, _id }) => (
           <ListItem
             key={name}
             component={Link}
