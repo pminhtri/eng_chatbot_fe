@@ -8,7 +8,7 @@ import { Login, Register } from "./modules/auth";
 import { useErrorHandler } from "./hooks";
 import { AppError } from "./types";
 import { Spinner } from "./components/ui";
-import { Admin, PublicEChat } from "./modules";
+import { Admin, PrivateChat, PublicEChat } from "./modules";
 
 export const Path = {
   Root: "/",
@@ -138,7 +138,7 @@ function Router() {
         }
       />
       <Route
-        path={Path["Root"]}
+        path={Path["Admin"]}
         element={
           <AuthenticatedRoute>
             <Admin />
@@ -153,17 +153,14 @@ function Router() {
           </UnauthenticatedRoute>
         }
       />
-      {/* <Route
-        path="/"
+      <Route
+        path={Path["Root"]}
         element={
           <AuthenticatedRoute>
-            <></>
-            <LandingPage />
+            <PrivateChat />
           </AuthenticatedRoute>
         }
-      >
-        <Route path="/conversation/:conversationId" element={<LandingPage />} />
-      </Route> */}
+      />
       <Route path={Path["PageNotFound"]} element={<PageNotFound />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>

@@ -17,6 +17,7 @@ import { useGlobalStore } from "../../store";
 import { fetchChatsByConversation, privateChat } from "../../api";
 import { AppError } from "../../types";
 import { SendRounded } from "@mui/icons-material";
+import SideBar from "./SideBar";
 const SKELETON_ROWS = 5;
 
 const PublicChatContainer = styled(Box)({
@@ -131,16 +132,13 @@ const typingAnimation = keyframes`
   }
 `;
 
-type PrivateChatProps = {
-  conversationId: string | undefined;
-};
-
 type ChatMessage = {
   content: string;
   isBot: boolean;
 };
 
-export const PrivateChat: FC<PrivateChatProps> = ({ conversationId }) => {
+export const PrivateChat: FC = () => {
+  const conversationId = "123";
   const { t } = useTranslation();
   const { handleError } = useErrorHandler();
 
@@ -303,119 +301,124 @@ export const PrivateChat: FC<PrivateChatProps> = ({ conversationId }) => {
   }, [chatContainerRef, maxPages]);
 
   return (
-    <PublicChatContainer>
-      <Box sx={{ display: "flex" }}>
-        {isAtTop && page < maxPages && <CircularProgress />}
-      </Box>
-      <MessageGroup id="message-group" ref={chatContainerRef}>
-        {messages.length !== 0 &&
-          messages.map(({ content, isBot }, index) => (
-            <Box
-              key={index}
-              sx={(theme) => ({
-                display: "flex",
-                width: "50%",
-                justifyContent: isBot ? "flex-start" : "flex-end",
-                [theme.breakpoints.down("tablet")]: {
-                  width: "100%",
-                },
-              })}
-            >
+    <Box>
+      <SideBar />
+      <PublicChatContainer>
+        <Box sx={{ display: "flex" }}>
+          {isAtTop && page < maxPages && <CircularProgress />}
+        </Box>
+        <MessageGroup id="message-group" ref={chatContainerRef}>
+          {messages.length !== 0 &&
+            messages.map(({ content, isBot }, index) => (
               <Box
-                ref={(el) => {
-                  if (index === 0) {
-                    messageLastIndexRef.current = el;
-                  }
-                }}
-                display="block"
-                width="fit-content"
-                maxWidth="50%"
-                textOverflow="initial"
-                whiteSpace="normal"
-                borderRadius="16px"
-                padding="8px 16px"
-                bgcolor={!isBot ? color.ZINC[200] : color.ZINC[300]}
-                sx={{
-                  wordBreak: "break-word",
-                }}
+                key={index}
+                sx={(theme) => ({
+                  display: "flex",
+                  width: "50%",
+                  justifyContent: isBot ? "flex-start" : "flex-end",
+                  [theme.breakpoints.down("tablet")]: {
+                    width: "100%",
+                  },
+                })}
               >
-                {isBot && index === messages.length - 1 ? (
-                  renderContentWithAnimation(content)
-                ) : (
-                  <Typography type="body-1">{content}</Typography>
-                )}
+                <Box
+                  ref={(el) => {
+                    if (index === 0) {
+                      messageLastIndexRef.current = el;
+                    }
+                  }}
+                  display="block"
+                  width="fit-content"
+                  maxWidth="50%"
+                  textOverflow="initial"
+                  whiteSpace="normal"
+                  borderRadius="16px"
+                  padding="8px 16px"
+                  bgcolor={!isBot ? color.ZINC[200] : color.ZINC[300]}
+                  sx={{
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {isBot && index === messages.length - 1 ? (
+                    renderContentWithAnimation(content)
+                  ) : (
+                    <Typography type="body-1">{content}</Typography>
+                  )}
+                </Box>
               </Box>
+            ))}
+          {isResponding && renderSkeletonResponse()}
+          {messages.length === 0 && (
+            <Box
+              display="flex"
+              justifyContent="center"
+              width="50%"
+              height="100%"
+              sx={{
+                background:
+                  "linear-gradient(90deg, #ff7e5f, #feb47b, #6a11cb, #2575fc, #ff7e5f)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                animation: "gradient-animation 5s ease infinite",
+                backgroundSize: "300% 100%",
+                "@keyframes gradient-animation": {
+                  "0%": {
+                    backgroundPosition: "0% 50%",
+                  },
+                  "50%": {
+                    backgroundPosition: "100% 50%",
+                  },
+                  "100%": {
+                    backgroundPosition: "0% 50%",
+                  },
+                },
+              }}
+            >
+              <Typography type="heading-1">{t("defaultContent")}</Typography>
             </Box>
-          ))}
-        {isResponding && renderSkeletonResponse()}
-        {messages.length === 0 && (
-          <Box
-            display="flex"
-            justifyContent="center"
-            width="50%"
-            height="100%"
+          )}
+        </MessageGroup>
+        <BoxInput>
+          <Input
+            fullWidth
+            variant="outlined"
+            placeholder="Message Chat..."
+            multiline
+            minRows={1}
+            maxRows={5}
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onFocus={() => setEnableSend(true)}
             sx={{
-              background:
-                "linear-gradient(90deg, #ff7e5f, #feb47b, #6a11cb, #2575fc, #ff7e5f)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              animation: "gradient-animation 5s ease infinite",
-              backgroundSize: "300% 100%",
-              "@keyframes gradient-animation": {
-                "0%": {
-                  backgroundPosition: "0% 50%",
-                },
-                "50%": {
-                  backgroundPosition: "100% 50%",
-                },
-                "100%": {
-                  backgroundPosition: "0% 50%",
+              "& .MuiInputBase-root": {
+                padding: "8px 16px",
+                color: "black",
+                "&:focus": {
+                  color: "black",
                 },
               },
             }}
-          >
-            <Typography type="heading-1">{t("defaultContent")}</Typography>
-          </Box>
-        )}
-      </MessageGroup>
-      <BoxInput>
-        <Input
-          fullWidth
-          variant="outlined"
-          placeholder="Message Chat..."
-          multiline
-          minRows={1}
-          maxRows={5}
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          onFocus={() => setEnableSend(true)}
-          sx={{
-            "& .MuiInputBase-root": {
-              padding: "8px 16px",
-              color: "black",
-              "&:focus": {
-                color: "black",
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      disabled={
+                        !enableSend || !newMessage.trim() || isResponding
+                      }
+                      onClick={handleSendMessage}
+                    >
+                      <SendRounded />
+                    </IconButton>
+                  </InputAdornment>
+                ),
               },
-            },
-          }}
-          slotProps={{
-            input: {
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    disabled={!enableSend || !newMessage.trim() || isResponding}
-                    onClick={handleSendMessage}
-                  >
-                    <SendRounded />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            },
-          }}
-          onKeyDown={handleKeyDown}
-        />
-      </BoxInput>
-    </PublicChatContainer>
+            }}
+            onKeyDown={handleKeyDown}
+          />
+        </BoxInput>
+      </PublicChatContainer>
+    </Box>
   );
 };
 

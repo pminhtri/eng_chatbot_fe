@@ -11,10 +11,11 @@ import {
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import MuiDrawer from "@mui/material/Drawer";
+import { useQuery } from "@tanstack/react-query";
 import { Theme, CSSObject } from "@mui/material/styles";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import { ConversationsData } from "../../types";
+import { getConversations } from "../../api";
 
 const drawerWidth = 240;
 
@@ -73,16 +74,17 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
-type SideBarProps = {
-  conversationsData: ConversationsData[] | undefined;
-};
-
-export const SideBar: FC<SideBarProps> = ({ conversationsData }) => {
+export const SideBar: FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
 
   const handleToggleDrawer = () => {
     setIsOpen(!isOpen);
   };
+
+  const { data: conversations } = useQuery({
+    queryKey: ["conversations"],
+    queryFn: getConversations,
+  });
 
   return (
     <Drawer variant="permanent" open={isOpen}>
@@ -93,7 +95,7 @@ export const SideBar: FC<SideBarProps> = ({ conversationsData }) => {
       </DrawerHeader>
       <Divider />
       <List>
-        {conversationsData?.map(({ name, _id }) => (
+        {conversations?.map(({ name, _id }) => (
           <ListItem
             key={name}
             component={Link}
