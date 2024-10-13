@@ -1,6 +1,4 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
-import { get, set, del } from "idb-keyval";
 
 import { Theme } from "./enums";
 import { UserDetails } from "./types";
@@ -11,7 +9,7 @@ type StateValue = {
   currentUser: UserDetails | null;
 };
 
-type Actions = {
+type Action = {
   setTheme: (theme: Theme) => void;
   fetchCurrentUser: () => Promise<void>;
   clearStore: () => void;
@@ -19,7 +17,7 @@ type Actions = {
 
 type Store = {
   value: StateValue;
-  actions: Actions;
+  actions: Action;
 };
 
 const initialStateValue: StateValue = {
@@ -27,37 +25,19 @@ const initialStateValue: StateValue = {
   currentUser: null,
 };
 
-const useStore = create(
-  persist<Store>(
-    (set, get) => ({
-      value: initialStateValue,
-      actions: {
-        setTheme: (theme) => set({ value: { ...get().value, theme } }),
-        fetchCurrentUser: async () => {
-          const currentUser = await fetchCurrentUser();
+const useStore = create<Store>(
+  (set) => ({
+    value: initialStateValue,
+    actions: {
+      setTheme: (theme: Theme) => set((state) => ({ value: { ...state.value, theme } })),
+      fetchCurrentUser: async () => {
+        const currentUser = await fetchCurrentUser();
 
-          set({ value: { ...get().value, currentUser } });
-        },
-        clearStore: () => { set({ value: initialStateValue }) },
+        set((state) => ({ value: { ...state.value, currentUser } }));
       },
-    }),
-    {
-      name: "global-store",
-      storage: createJSONStorage(() => ({
-        getItem: async (name: string) => {
-          const value = await get(name);
-
-          return value;
-        },
-        setItem: async (name: string, value: any) => {
-          await set(name, value);
-        },
-        removeItem: async (name: string) => {
-          await del(name);
-        }
-      })),
-    }
-  )
+      clearStore: () => set({ value: initialStateValue }),
+    },
+  }),
 );
 
 export const useGlobalStore = useStore;

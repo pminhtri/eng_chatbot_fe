@@ -25,6 +25,7 @@ import { useGlobalStore } from "../../store";
 
 import ThirdPartyAuth from "./ThirdPartyAuth";
 import { ErrorCode } from "../../enums";
+import { Path } from "../../Router";
 
 type LoginForm = {
   email: string;
@@ -151,7 +152,7 @@ const Login = () => {
       setExecuting(true);
       await login(email, password);
       await fetchCurrentUser();
-      navigate("/");
+      navigate(Path["Root"]);
     } catch (error) {
       const appError = error as AppError;
 

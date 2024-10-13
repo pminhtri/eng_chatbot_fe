@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { del } from "idb-keyval";
 import { PageNotFound } from "./errors";
 import configs from "./configs";
 import { i18n } from "./utils";
@@ -8,9 +7,18 @@ import { useGlobalStore } from "./store";
 import { Login, Register } from "./modules/auth";
 import { useErrorHandler } from "./hooks";
 import { AppError } from "./types";
-import { LandingPage, PublicEChat } from "./modules/landingPage";
 import { Spinner } from "./components/ui";
-import { AdminPage } from "./modules/adminPage";
+import { Admin, PublicEChat } from "./modules";
+
+export const Path = {
+  Root: "/",
+  Public: "/public",
+  Login: "auth/login",
+  Register: "auth/register",
+  Admin: "/admin",
+  PageNotFound: "/page-not-found",
+  PermissionDenied: "/permission-denied",
+};
 
 const parseJwt = (accessToken: string) => {
   try {
@@ -20,7 +28,7 @@ const parseJwt = (accessToken: string) => {
   }
 };
 
-const AuthenticatedRoute = ({ children }: { children: React.ReactNode[] }) => {
+const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
   const {
     value: { currentUser },
     actions: { clearStore, fetchCurrentUser },
@@ -70,7 +78,6 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode[] }) => {
     (async () => {
       if (isAccessTokenExpired) {
         localStorage.removeItem("accessToken");
-        await del("global-store");
         clearStore();
       }
     })();
@@ -83,28 +90,25 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode[] }) => {
   if (error) {
     handleError(error);
 
-    return <Navigate to="/auth/login" replace />;
+    return <Navigate to={Path["Login"]} replace />;
   }
 
   if (!currentUser && !accessToken) {
-    return <Navigate to="/public" replace />;
-  }
-  const isAdmin = currentUser?.role === "admin";
-
-  if (isAdmin) return children[0];
-
-  return children[1];
-};
-
-function UnauthenticatedRoute({ children }: { children: React.ReactNode }) {
-  const accessToken = localStorage.getItem("accessToken");
-
-  if (accessToken) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={Path["Public"]} replace />;
   }
 
   return children;
-}
+};
+
+const UnauthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
+  const accessToken = localStorage.getItem("accessToken");
+
+  if (accessToken) {
+    return <Navigate to={Path["Root"]} replace />;
+  }
+
+  return children;
+};
 
 function Router() {
   useEffect(() => {
@@ -118,7 +122,7 @@ function Router() {
   return (
     <Routes>
       <Route
-        path="/auth/login"
+        path={Path["Login"]}
         element={
           <UnauthenticatedRoute>
             <Login />
@@ -126,7 +130,7 @@ function Router() {
         }
       />
       <Route
-        path="/auth/register"
+        path={Path["Register"]}
         element={
           <UnauthenticatedRoute>
             <Register />
@@ -134,23 +138,22 @@ function Router() {
         }
       />
       <Route
-        path="/"
+        path={Path["Root"]}
         element={
           <AuthenticatedRoute>
-            <AdminPage />
-            <LandingPage />
+            <Admin />
           </AuthenticatedRoute>
         }
       />
       <Route
-        path="/public"
+        path={Path["Public"]}
         element={
           <UnauthenticatedRoute>
             <PublicEChat />
           </UnauthenticatedRoute>
         }
       />
-      <Route
+      {/* <Route
         path="/"
         element={
           <AuthenticatedRoute>
@@ -160,7 +163,8 @@ function Router() {
         }
       >
         <Route path="/conversation/:conversationId" element={<LandingPage />} />
-      </Route>
+      </Route> */}
+      <Route path={Path["PageNotFound"]} element={<PageNotFound />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

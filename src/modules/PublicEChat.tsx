@@ -1,24 +1,24 @@
-import { FC, useEffect, useState } from "react";
-import Markdown from "react-markdown";
-import { SendRounded } from "@mui/icons-material";
+import { FC, useState, useEffect } from "react";
 import {
   Box,
+  Grid2,
+  IconButton,
+  InputAdornment,
+  Skeleton,
   styled,
   TextField,
-  InputAdornment,
-  IconButton,
-  Skeleton,
-  Grid2,
 } from "@mui/material";
+import { SendRounded } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
-import { color } from "../../constants";
-import { Header, Layout } from "../../layouts";
-import { Button, Typography } from "../../components/ui";
-// import { useNavigate } from "react-router-dom";
-import { publicChat } from "../../api";
-import { useErrorHandler } from "../../hooks";
-import { AppError } from "../../types";
-import configs from "../../configs";
+import { useNavigate } from "react-router-dom";
+import Markdown from "react-markdown";
+import { publicChat } from "../api";
+import { Button, Typography } from "../components/ui";
+import configs from "../configs";
+import { color } from "../constants";
+import { useErrorHandler } from "../hooks";
+import { Layout, Header } from "../layouts";
+import { AppError } from "../types";
 
 const SKELETON_ROWS = 5;
 const TYPING_SPEED = 10;
@@ -180,7 +180,7 @@ const renderSkeletonResponse = () => (
 );
 
 export const PublicEChat: FC = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { handleError } = useErrorHandler();
   const [messages, setMessages] = useState<
@@ -276,16 +276,14 @@ export const PublicEChat: FC = () => {
               text="Login"
               variant="contained"
               onClick={() => {
-                // navigate("/auth/login");
-                alert("In development progress");
+                navigate("/auth/login");
               }}
             />
             <RegisterButton
               text="Register"
               variant="contained"
               onClick={() => {
-                // navigate("/auth/register");
-                alert("In development progress");
+                navigate("/auth/register");
               }}
             />
           </Box>

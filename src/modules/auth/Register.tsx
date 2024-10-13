@@ -23,6 +23,7 @@ import { formatRules } from "../../utils/validation";
 import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
 import ThirdPartyAuth from "./ThirdPartyAuth";
 import { useAuthStore } from "./store";
+import { Path } from "../../Router";
 
 type RegisterForm = {
   email: string;
@@ -149,7 +150,7 @@ const Register: FC = () => {
       await register(email, password);
       showSuccessMessage(t("Register Successfully!"));
       setExecuting(false);
-      navigate("/auth/login");
+      navigate(Path["Login"]);
     } catch (error) {
       const appError = error as AppError;
 
