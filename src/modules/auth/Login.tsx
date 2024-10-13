@@ -21,7 +21,6 @@ import { Button, Typography } from "../../components/ui";
 import { Layout } from "../../layouts";
 import { color } from "../../constants";
 import { formatRules } from "../../utils/validation";
-import { useGlobalStore } from "../../store";
 
 import ThirdPartyAuth from "./ThirdPartyAuth";
 import { ErrorCode } from "../../enums";
@@ -128,10 +127,6 @@ const Login = () => {
     actions: { login },
   } = useAuthStore();
 
-  const {
-    actions: { fetchCurrentUser },
-  } = useGlobalStore();
-
   const form = useForm<LoginForm>({
     mode: "onChange",
     defaultValues: {
@@ -151,7 +146,6 @@ const Login = () => {
       setErrorMessage("");
       setExecuting(true);
       await login(email, password);
-      await fetchCurrentUser();
       navigate(Path["Root"]);
     } catch (error) {
       const appError = error as AppError;
@@ -277,7 +271,7 @@ const Login = () => {
                   color="textSecondary"
                   translationKey="registerQuestion"
                 />
-                <Link to="/auth/register" style={{ marginLeft: 4 }}>
+                <Link to={Path["Register"]} style={{ marginLeft: 4 }}>
                   <Typography
                     type="body-1"
                     color="primary"
