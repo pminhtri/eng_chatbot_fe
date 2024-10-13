@@ -36,7 +36,7 @@ export const fetchChatsByConversation = async (
 ): Promise<PrivateChatsFetch> => {
   const { data }: AxiosResponse = await axiosClient.get<PrivateChatsFetch>(
     "chat",
-    { params: { conversationId, page: page },  }
+    { params: { conversationId, page: page } },
   );
 
   return data;

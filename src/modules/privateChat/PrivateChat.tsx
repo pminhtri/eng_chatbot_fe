@@ -239,7 +239,7 @@ export const PrivateChat: FC = () => {
         if (conversationId) {
           const { paginatedChats, totalPages } = await fetchChatsByConversation(
             page,
-            conversationId
+            conversationId,
           );
           if (paginatedChats.length === 0 || !totalPages) {
             return setIsAtTop(false);
@@ -257,7 +257,7 @@ export const PrivateChat: FC = () => {
             const mappedChats: ChatMessage[] = [];
             const maxLength = Math.max(
               mappedMessages.length,
-              mappedResponses.length
+              mappedResponses.length,
             );
 
             for (let i = 0; i < maxLength; i++) {

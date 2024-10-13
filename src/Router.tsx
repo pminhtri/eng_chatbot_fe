@@ -36,7 +36,7 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const { handleError } = useErrorHandler();
   const [accessToken, setAccessToken] = useState(
-    localStorage.getItem("accessToken") || ""
+    localStorage.getItem("accessToken") || "",
   );
   const [isAccessTokenExpired, setIsAccessTokenExpired] = useState(false);
   const [error, setError] = useState<AppError | null>(null);

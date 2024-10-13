@@ -4,5 +4,5 @@ export type UserDetails = {
   firstName: string;
   lastName: string;
   avatar: string;
-  role: string
+  role: string;
 };

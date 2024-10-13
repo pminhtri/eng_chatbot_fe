@@ -33,7 +33,7 @@ export const PageNotFound = () => {
     window.history.replaceState(
       {},
       "Page Not Found",
-      location.state.prevRoute.pathname
+      location.state.prevRoute.pathname,
     );
   }
 

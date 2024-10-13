@@ -104,7 +104,7 @@ export const ThemeProvider: React.FC<Props> = ({ children }) => {
           desktop: 1920,
         },
       },
-    })
+    }),
   );
 
   useEffect(() => {

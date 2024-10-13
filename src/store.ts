@@ -25,19 +25,18 @@ const initialStateValue: StateValue = {
   currentUser: null,
 };
 
-const useStore = create<Store>(
-  (set) => ({
-    value: initialStateValue,
-    actions: {
-      setTheme: (theme: Theme) => set((state) => ({ value: { ...state.value, theme } })),
-      fetchCurrentUser: async () => {
-        const currentUser = await fetchCurrentUser();
+const useStore = create<Store>((set) => ({
+  value: initialStateValue,
+  actions: {
+    setTheme: (theme: Theme) =>
+      set((state) => ({ value: { ...state.value, theme } })),
+    fetchCurrentUser: async () => {
+      const currentUser = await fetchCurrentUser();
 
-        set((state) => ({ value: { ...state.value, currentUser } }));
-      },
-      clearStore: () => set({ value: initialStateValue }),
+      set((state) => ({ value: { ...state.value, currentUser } }));
     },
-  }),
-);
+    clearStore: () => set({ value: initialStateValue }),
+  },
+}));
 
 export const useGlobalStore = useStore;
