@@ -6,11 +6,11 @@ import {
   keyframes,
   InputAdornment,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { color } from "../../constants";
 import { Typography } from "../../components/ui";
-import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "../../hooks";
 import { useGlobalStore } from "../../store";
@@ -131,26 +131,37 @@ const typingAnimation = keyframes`
   }
 `;
 
-export const PrivateChat: FC = () => {
-  const navigate = useNavigate();
+type PrivateChatProps = {
+  conversationId: string | undefined;
+};
+
+type ChatMessage = {
+  content: string;
+  isBot: boolean;
+};
+
+export const PrivateChat: FC<PrivateChatProps> = ({ conversationId }) => {
   const { t } = useTranslation();
   const { handleError } = useErrorHandler();
-  const { conversationsId } = useParams();
 
   const [newMessage, setNewMessage] = useState<string>("");
   const [enableSend, setEnableSend] = useState<boolean>(false);
   const [isResponding, setIsResponding] = useState<boolean>(false);
-
-  const [messages, setMessages] = useState<
-    {
-      content: string;
-      isBot: boolean;
-    }[]
-  >([]);
+  const [isAtTop, setIsAtTop] = useState<boolean>(false);
+  const messageLastIndexRef = useRef<unknown>(null);
+  const [maxPages, setMaxPages] = useState<number>(1);
+  const [page, setPage] = useState<number>(1);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const {
     value: { currentUser },
   } = useGlobalStore();
+
+  const setIncrementalPage = (limitedValue: number) => {
+    const limitedPage = Math.max(0, Math.min(++limitedValue, maxPages));
+    return setPage(limitedPage);
+  };
 
   const handleSendMessage = async () => {
     if (!newMessage.trim()) {
@@ -180,7 +191,12 @@ export const PrivateChat: FC = () => {
   useEffect(() => {
     const messageGroup = document.getElementById("message-group");
     if (messageGroup) {
-      messageGroup.scrollTop = messageGroup.scrollHeight;
+      if (page <= 1) {
+        messageGroup.scrollTop = messageGroup.scrollHeight;
+      } else {
+        // console.log(messageLastIndexRef.current)
+        // messageGroup.scrollTop = messageLastIndexRef.current.scrollHeight;
+      }
     }
   }, [messages]);
 
@@ -200,7 +216,10 @@ export const PrivateChat: FC = () => {
 
       try {
         const { response } = await privateChat({
-          chatData: { conversationId: "", message: lastMessage.content },
+          chatData: {
+            conversationId: conversationId,
+            message: lastMessage.content,
+          },
           userId: currentUser?.id,
         });
 
@@ -219,33 +238,76 @@ export const PrivateChat: FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const { chats } = await fetchChatsByConversation(conversationsId);
-        const mappedResponses = chats.map(({ response }) => ({
-          content: response,
-          isBot: true,
-        }));
+        if (conversationId) {
+          const { paginatedChats, totalPages } = await fetchChatsByConversation(
+            conversationId,
+            page
+          );
+          if (paginatedChats.length === 0 || !totalPages) {
+            return setIsAtTop(false);
+          } else {
+            const mappedResponses = paginatedChats.map(({ response }) => ({
+              content: response,
+              isBot: true,
+            }));
 
-        const mappedMessages = chats.map(({ message }) => ({
-          content: message,
-          isBot: false,
-        }));
+            const mappedMessages = paginatedChats.map(({ message }) => ({
+              content: message,
+              isBot: false,
+            }));
 
-        const mappedChats = [];
-        const maxLength = Math.max(mappedMessages.length, mappedResponses.length);
+            const mappedChats: ChatMessage[] = [];
+            const maxLength = Math.max(
+              mappedMessages.length,
+              mappedResponses.length
+            );
 
-        for (let i = 0; i < maxLength; i++) {
-          if (i < mappedMessages.length) mappedChats.push(mappedMessages[i]); // Even index (from array1)
-          if (i < mappedResponses.length) mappedChats.push(mappedResponses[i]); // Odd index (from array2)
+            for (let i = 0; i < maxLength; i++) {
+              if (i < mappedMessages.length)
+                mappedChats.push(mappedMessages[i]);
+              if (i < mappedResponses.length)
+                mappedChats.push(mappedResponses[i]);
+            }
+
+            setMessages((prevChats) => [...mappedChats, ...prevChats]);
+            setMaxPages(totalPages);
+          }
         }
-
-        setMessages(mappedChats);
       } catch (error) {}
     })();
-  }, [conversationsId]);
+  }, [conversationId, page]);
+
+  const handleScroll = () => {
+    const scrollElement = chatContainerRef;
+
+    if (scrollElement.current?.scrollTop === 0) {
+      setIsAtTop(true);
+      setIncrementalPage(page);
+    } else {
+      setIsAtTop(false);
+    }
+  };
+
+  useEffect(() => {
+    const scrollElement = chatContainerRef;
+
+    if (scrollElement.current) {
+      scrollElement.current.addEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      if (scrollElement.current) {
+        scrollElement.current.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [chatContainerRef, maxPages]);
 
   return (
     <PublicChatContainer>
-      <MessageGroup id="message-group">
+      <Box sx={{ display: "flex" }}>
+        {isAtTop && page < maxPages && <CircularProgress />}
+      </Box>
+      <MessageGroup id="message-group" ref={chatContainerRef}>
         {messages.length !== 0 &&
           messages.map(({ content, isBot }, index) => (
             <Box
@@ -260,6 +322,11 @@ export const PrivateChat: FC = () => {
               })}
             >
               <Box
+                ref={(el) => {
+                  if (index === 0) {
+                    messageLastIndexRef.current = el;
+                  }
+                }}
                 display="block"
                 width="fit-content"
                 maxWidth="50%"

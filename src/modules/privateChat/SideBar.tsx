@@ -1,5 +1,4 @@
-import { FC, useEffect, useState } from "react";
-import { useGlobalStore } from "../../store";
+import { FC, useState } from "react";
 import {
   Divider,
   IconButton,
@@ -15,7 +14,6 @@ import MuiDrawer from "@mui/material/Drawer";
 import { Theme, CSSObject } from "@mui/material/styles";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import { getConversations } from "../../api/conversation";
 import { ConversationsData } from "../../types";
 
 const drawerWidth = 240;
@@ -100,7 +98,7 @@ export const SideBar: FC<SideBarProps> = ({ conversationsData }) => {
           <ListItem
             key={name}
             component={Link}
-            to={`/conversations/${_id}`}
+            to={`/conversation/${_id}`}
             disablePadding
             sx={{ display: "block" }}
           >

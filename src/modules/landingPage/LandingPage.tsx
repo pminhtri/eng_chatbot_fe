@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from "react";
 import { useAuthStore } from "../auth/store";
 import { useGlobalStore } from "../../store";
 import { Box } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { del } from "idb-keyval";
 import { Button, Typography } from "../../components/ui";
 import { Header, Layout } from "../../layouts";
@@ -22,6 +22,8 @@ const LandingPage: FC = () => {
   const {
     value: { currentUser },
   } = useGlobalStore();
+
+  const { conversationId } = useParams();
 
   const handleLogout = async () => {
     await logout();
@@ -63,7 +65,7 @@ const LandingPage: FC = () => {
       }
     >
       <SideBar conversationsData={conversationsData} />
-      <PrivateChat />
+      <PrivateChat conversationId={conversationId} />
     </Layout>
   );
 };

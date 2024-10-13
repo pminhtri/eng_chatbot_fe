@@ -149,9 +149,17 @@ function Router() {
             <PublicEChat />
           </UnauthenticatedRoute>
         }
+      />
+      <Route
+        path="/"
+        element={
+          <AuthenticatedRoute>
+            <LandingPage />
+          </AuthenticatedRoute>
+        }
       >
         <Route
-          path="conversations/:conversationsId"
+          path="/conversation/:conversationId"
           element={<LandingPage />}
         />
       </Route>
