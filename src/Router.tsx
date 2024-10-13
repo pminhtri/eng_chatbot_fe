@@ -9,6 +9,7 @@ import { useErrorHandler } from "./hooks";
 import { AppError } from "./types";
 import { Spinner } from "./components/ui";
 import { Admin, PrivateChat, PublicEChat } from "./modules";
+import { Role } from "./enums";
 
 export const Path = {
   Root: "/",
@@ -110,6 +111,24 @@ const UnauthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
   return children;
 };
 
+const AuthorizedRoute = ({ children }: { children: React.ReactNode }) => {
+  const {
+    value: { currentUser },
+  } = useGlobalStore();
+
+  if (!currentUser) {
+    return <Navigate to={Path["Login"]} replace />;
+  }
+
+  const hasPermission = [Role.Admin].includes(currentUser.role as Role);
+
+  if (!hasPermission) {
+    return <Navigate to={Path["PermissionDenied"]} replace />;
+  }
+
+  return children;
+};
+
 function Router() {
   useEffect(() => {
     const loadLanguage = async () => {
@@ -141,7 +160,9 @@ function Router() {
         path={Path["Admin"]}
         element={
           <AuthenticatedRoute>
-            <Admin />
+            <AuthorizedRoute>
+              <Admin />
+            </AuthorizedRoute>
           </AuthenticatedRoute>
         }
       />
