@@ -326,7 +326,7 @@ const Register: FC = () => {
                   color="textSecondary"
                   translationKey="loginQuestion"
                 />
-                <Link to="/auth/login" style={{ marginLeft: 4 }}>
+                <Link to={Path["Login"]} style={{ marginLeft: 4 }}>
                   <Typography
                     type="body-1"
                     color="primary"

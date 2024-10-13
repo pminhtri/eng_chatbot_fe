@@ -13,8 +13,8 @@ import { Admin, PrivateChat, PublicEChat } from "./modules";
 export const Path = {
   Root: "/",
   Public: "/public",
-  Login: "auth/login",
-  Register: "auth/register",
+  Login: "/auth/login",
+  Register: "/auth/register",
   Admin: "/admin",
   PageNotFound: "/page-not-found",
   PermissionDenied: "/permission-denied",
