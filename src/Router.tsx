@@ -130,23 +130,23 @@ function Router() {
         }
       />
       <Route
-        path="/"
-        element={
-          <AuthenticatedRoute>
-            <LandingPage />
-          </AuthenticatedRoute>
-        }
-      />
-      <Route
         path="/public"
         element={
           <UnauthenticatedRoute>
             <PublicEChat />
           </UnauthenticatedRoute>
         }
+      />
+      <Route
+        path="/"
+        element={
+          <AuthenticatedRoute>
+            <LandingPage />
+          </AuthenticatedRoute>
+        }
       >
         <Route
-          path="conversations/:conversationsId"
+          path="/conversation/:conversationId"
           element={<LandingPage />}
         />
       </Route>

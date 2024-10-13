@@ -31,11 +31,12 @@ export const privateChat = async ({
 };
 
 export const fetchChatsByConversation = async (
-  conversationId: string | undefined,
+  page: number,
+  conversationId?: string,
 ): Promise<PrivateChatsFetch> => {
   const { data }: AxiosResponse = await axiosClient.get<PrivateChatsFetch>(
     "chat",
-    { params: { conversationId },  }
+    { params: { conversationId, page: page },  }
   );
 
   return data;

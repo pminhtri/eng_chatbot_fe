@@ -32,5 +32,6 @@ export type PrivateChatResponse = {
 };
 
 export type PrivateChatsFetch = {
-  chats: PrivateChat[];
+  paginatedChats: PrivateChat[];
+  totalPages: number;
 };
