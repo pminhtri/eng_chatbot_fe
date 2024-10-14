@@ -261,10 +261,8 @@ export const ChatBox: FC = () => {
     (async () => {
       try {
         if (conversationId) {
-          const { paginatedChats, totalPages } = await fetchChatsByConversation(
-            page,
-            conversationId,
-          );
+          const { docs: paginatedChats, totalPages } =
+            await fetchChatsByConversation(page, conversationId);
           if (paginatedChats.length === 0 || !totalPages) {
             return setIsAtTop(false);
           } else {

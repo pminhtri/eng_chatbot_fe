@@ -1,12 +1,13 @@
-import { AxiosResponse } from "axios";
 import {
+  PaginationResult,
+  PrivateChat,
   PrivateChatRequest,
   PrivateChatResponse,
   PublicChatRequest,
   PublicChatResponse,
-  PrivateChatsFetch,
 } from "../types";
 import { axiosClient } from "../utils";
+import { PAGE_SIZE } from "../constants";
 
 export const publicChat = async ({
   message,
@@ -33,10 +34,10 @@ export const privateChat = async ({
 export const fetchChatsByConversation = async (
   page: number,
   conversationId?: string,
-): Promise<PrivateChatsFetch> => {
-  const { data }: AxiosResponse = await axiosClient.get<PrivateChatsFetch>(
+): Promise<PaginationResult<PrivateChat>> => {
+  const { data } = await axiosClient.get<PaginationResult<PrivateChat>>(
     "chat",
-    { params: { conversationId, page: page } },
+    { params: { conversationId, page: page, limit: PAGE_SIZE } },
   );
 
   return data;

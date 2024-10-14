@@ -30,8 +30,3 @@ export type PrivateChatResponse = {
     newConversation: Conversation;
   };
 };
-
-export type PrivateChatsFetch = {
-  paginatedChats: PrivateChat[];
-  totalPages: number;
-};
