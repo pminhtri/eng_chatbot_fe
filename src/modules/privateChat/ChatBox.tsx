@@ -11,13 +11,15 @@ import {
 } from "@mui/material";
 import { color } from "../../constants";
 import { SendRounded } from "@mui/icons-material";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "../../hooks";
 import { fetchChatsByConversation, privateChat } from "../../api";
 import { AppError } from "../../types";
 import { useGlobalStore } from "../../store";
 import Markdown from "react-markdown";
+import { usePrivateChatStore } from "./index";
+import { Path } from "../../Router";
 
 const SKELETON_ROWS = 5;
 const TYPING_SPEED = 10;
@@ -160,6 +162,7 @@ export const ChatBox: FC = () => {
   const { t } = useTranslation();
   const { handleError } = useErrorHandler();
   const { conversationId } = useParams<{ conversationId: string }>();
+  const navigate = useNavigate();
 
   const [firstLoad, setFirstLoad] = useState<boolean>(true);
   const [newMessage, setNewMessage] = useState<string>("");
@@ -167,19 +170,18 @@ export const ChatBox: FC = () => {
   const [isResponding, setIsResponding] = useState<boolean>(false);
   const [isAtTop, setIsAtTop] = useState<boolean>(false);
   const [maxPages, setMaxPages] = useState<number>(1);
-  const [page, setPage] = useState<number>(1);
+  const [hasNextPage, setHasNextPage] = useState<boolean>(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const messageLastIndexRef = useRef<unknown>(null);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const messageLastIndexRef = useRef<unknown>();
 
   const {
     value: { currentUser },
   } = useGlobalStore();
 
-  const setIncrementalPage = (limitedValue: number) => {
-    const limitedPage = Math.max(0, Math.min(++limitedValue, maxPages));
-    return setPage(limitedPage);
-  };
+  const {
+    value: { pageCount },
+    actions: { increasePageCount, resetPageCount },
+  } = usePrivateChatStore();
 
   const handleSendMessage = async () => {
     if (!newMessage.trim()) {
@@ -209,11 +211,12 @@ export const ChatBox: FC = () => {
   useEffect(() => {
     const messageGroup = document.getElementById("message-group");
     if (messageGroup) {
-      if (page <= 1) {
+      if (pageCount <= 1) {
         messageGroup.scrollTop = messageGroup.scrollHeight;
       } else {
-        // console.log(messageLastIndexRef.current)
-        // messageGroup.scrollTop = messageLastIndexRef.current.scrollHeight;
+        const messageLastIndex =
+          messageLastIndexRef.current?.getBoundingClientRect();
+        messageGroup.scrollTop = messageLastIndex.y;
       }
     }
   }, [messages]);
@@ -245,6 +248,10 @@ export const ChatBox: FC = () => {
           userId: currentUser?.id,
         });
 
+        if(response.newConversation){
+          return navigate(`${Path["Conversation"]}/${response.newConversation._id}`)
+        }
+
         setMessages((prevMessages) => [
           ...prevMessages,
           { content: response.newChat.response, isBot: true },
@@ -261,11 +268,17 @@ export const ChatBox: FC = () => {
     (async () => {
       try {
         if (conversationId) {
-          const { docs: paginatedChats, totalPages } =
-            await fetchChatsByConversation(page, conversationId);
+          const {
+            docs: paginatedChats,
+            totalPages,
+            hasNextPage,
+            hasPrevPage,
+          } = await fetchChatsByConversation(pageCount, conversationId);
+
           if (paginatedChats.length === 0 || !totalPages) {
             return setIsAtTop(false);
           } else {
+            paginatedChats.reverse();
             const mappedResponses = paginatedChats.map(({ response }) => ({
               content: response,
               isBot: true,
@@ -279,7 +292,7 @@ export const ChatBox: FC = () => {
             const mappedChats: ChatMessage[] = [];
             const maxLength = Math.max(
               mappedMessages.length,
-              mappedResponses.length,
+              mappedResponses.length
             );
 
             for (let i = 0; i < maxLength; i++) {
@@ -289,49 +302,89 @@ export const ChatBox: FC = () => {
                 mappedChats.push(mappedResponses[i]);
             }
 
-            setMessages(mappedChats);
+            if (hasPrevPage) {
+              setMessages((prevMessages) => {
+                return [...mappedChats, ...prevMessages];
+              });
+            } else {
+              setMessages(mappedChats);
+            }
             setMaxPages(totalPages);
+            setHasNextPage(hasNextPage);
           }
         }
       } catch (error) {}
     })();
-  }, [conversationId, page]);
+  }, [conversationId, pageCount]);
 
   const handleScroll = () => {
-    const scrollElement = chatContainerRef;
+    const scrollElement = document.getElementById("message-group");
 
-    if (scrollElement.current?.scrollTop === 0) {
+    if (scrollElement?.scrollTop === 0) {
       setIsAtTop(true);
-      setIncrementalPage(page);
+      increasePageCount(maxPages);
     } else {
       setIsAtTop(false);
     }
   };
 
   useEffect(() => {
-    const scrollElement = chatContainerRef;
+    const scrollElement = document.getElementById("message-group");
 
-    if (scrollElement.current) {
-      scrollElement.current.addEventListener("scroll", handleScroll);
+    if (scrollElement) {
+      scrollElement.addEventListener("scroll", handleScroll);
     }
 
     return () => {
-      if (scrollElement.current) {
-        scrollElement.current.removeEventListener("scroll", handleScroll);
+      if (scrollElement) {
+        scrollElement.removeEventListener("scroll", handleScroll);
       }
     };
-  }, [chatContainerRef, maxPages]);
+  }, [hasNextPage]);
+
+  useEffect(() => {
+    const scrollElement = document.getElementById("message-group");
+
+    if (!scrollElement) return;
+
+    if (!hasNextPage) {
+      scrollElement.removeEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      if (scrollElement) {
+        scrollElement.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [hasNextPage]);
+
+  useEffect(() => {
+    resetPageCount;
+    setMessages([]);
+    setIsAtTop(false);
+    setHasNextPage(false)
+  }, [conversationId]);
+
+  const lastIndex =
+    messages.length % 20 === 0
+      ? (pageCount - 1) * 20 - 1
+      : (messages.length % 20) - 1;
 
   return (
     <ChatContainer>
       <Box sx={{ display: "flex" }}>
-        {isAtTop && page < maxPages && <CircularProgress />}
+        {isAtTop && hasNextPage && <CircularProgress />}
       </Box>
-      <MessageGroup id="message-group" ref={chatContainerRef}>
+      <MessageGroup id="message-group">
         {messages.length !== 0 &&
           messages.map(({ content, isBot }, index) => (
             <Box
               key={index}
+              ref={(el) => {
+                if (index === lastIndex) {
+                  messageLastIndexRef.current = el;
+                }
+              }}
               sx={(theme) => ({
                 display: "flex",
                 width: "50%",
@@ -342,11 +395,6 @@ export const ChatBox: FC = () => {
               })}
             >
               <Box
-                ref={(el) => {
-                  if (index === 0) {
-                    messageLastIndexRef.current = el;
-                  }
-                }}
                 display="block"
                 width="fit-content"
                 maxWidth="100%"
