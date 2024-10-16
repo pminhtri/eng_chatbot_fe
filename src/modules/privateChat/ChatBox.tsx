@@ -1,25 +1,32 @@
-import { FC, useEffect, useRef, useState } from "react";
-import { Typography } from "../../components/ui";
+import {
+  FC,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { useParams } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import Markdown from "react-markdown";
 import {
   Box,
-  CircularProgress,
   IconButton,
   InputAdornment,
   Skeleton,
   styled,
   TextField,
 } from "@mui/material";
-import { color } from "../../constants";
 import { SendRounded } from "@mui/icons-material";
-import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useErrorHandler } from "../../hooks";
-import { fetchChatsByConversation, privateChat } from "../../api";
-import { AppError } from "../../types";
+import { Spinner, Typography } from "../../components/ui";
+import { color } from "../../constants";
+import { useAsyncEffect, useErrorHandler } from "../../hooks";
+import { privateChat } from "../../api";
 import { useGlobalStore } from "../../store";
-import Markdown from "react-markdown";
 import { usePrivateChatStore } from "./index";
-import { Path } from "../../Router";
+import { AppMessage } from "./store";
+import { AppError } from "../../types";
 
 const SKELETON_ROWS = 5;
 const TYPING_SPEED = 10;
@@ -153,238 +160,162 @@ const TypingMarkdown: FC<{ content: string; isAnimating: boolean }> = ({
   );
 };
 
-type ChatMessage = {
-  content: string;
-  isBot: boolean;
-};
-
 export const ChatBox: FC = () => {
   const { t } = useTranslation();
-  const { handleError } = useErrorHandler();
   const { conversationId } = useParams<{ conversationId: string }>();
-  const navigate = useNavigate();
-
-  const [firstLoad, setFirstLoad] = useState<boolean>(true);
-  const [newMessage, setNewMessage] = useState<string>("");
-  const [enableSend, setEnableSend] = useState<boolean>(false);
-  const [isResponding, setIsResponding] = useState<boolean>(false);
-  const [isAtTop, setIsAtTop] = useState<boolean>(false);
-  const [maxPages, setMaxPages] = useState<number>(1);
-  const [hasNextPage, setHasNextPage] = useState<boolean>(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const messageLastIndexRef = useRef<unknown>();
-
+  const { handleError } = useErrorHandler();
   const {
     value: { currentUser },
   } = useGlobalStore();
-
   const {
-    value: { pageCount },
-    actions: { increasePageCount, resetPageCount },
+    value: { messages },
+    actions: {
+      fetchMessages,
+      appendMessages,
+      resetPageCount,
+      loadMoreMessages,
+    },
   } = usePrivateChatStore();
+  const [enableSend, setEnableSend] = useState(false);
+  const [userInput, setUserInput] = useState("");
+  const [firstLoad, setFirstLoad] = useState(true);
+  const [isResponding, setIsResponding] = useState(false);
+  const messageGroupRef = useRef<HTMLDivElement>(null);
+  const previousScrollHeightRef = useRef(0);
 
-  const handleSendMessage = async () => {
-    if (!newMessage.trim()) {
-      return;
+  const scrollToBottom = useCallback(() => {
+    if (messageGroupRef.current) {
+      messageGroupRef.current.scrollTo({
+        top: messageGroupRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, []);
+
+  const restoreScrollPosition = useCallback(() => {
+    if (messageGroupRef.current) {
+      messageGroupRef.current.scrollTop =
+        messageGroupRef.current.scrollHeight - previousScrollHeightRef.current;
+    }
+  }, []);
+
+  const { executing: fetchingMessages, error: fetchMessagesError } =
+    useAsyncEffect(async () => {
+      if (conversationId) {
+        try {
+          await fetchMessages(conversationId);
+        } catch (error) {
+          handleError(error as AppError);
+        }
+      }
+    }, [conversationId]);
+
+  if (fetchMessagesError) handleError(fetchMessagesError);
+
+  const messageMutation = useMutation({
+    mutationFn: async (message: AppMessage) => {
+      try {
+        const { response } = await privateChat({
+          chatData: {
+            conversationId: conversationId!,
+            message: message.content,
+          },
+          userId: currentUser?.id,
+        });
+        return { content: response.newChat.response, isBot: true };
+      } catch (error) {
+        throw new Error("Failed to send message");
+      }
+    },
+    onMutate: (message) => {
+      appendMessages([message]);
+      scrollToBottom();
+    },
+    onSuccess: (response) => {
+      appendMessages([response]);
+      setIsResponding(false);
+      scrollToBottom();
+    },
+    onError: (error) => {
+      handleError(error);
+      setIsResponding(false);
+    },
+  });
+
+  const handleScroll = useCallback(async () => {
+    if (!messageGroupRef.current) return;
+
+    if (messageGroupRef.current.scrollTop === 0) {
+      previousScrollHeightRef.current = messageGroupRef.current.scrollHeight;
+
+      try {
+        await loadMoreMessages(conversationId!);
+        restoreScrollPosition();
+      } catch (error) {
+        handleError(error as AppError);
+      }
+    }
+  }, [conversationId, loadMoreMessages, handleError]);
+
+  const handleChangeValue = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setUserInput(e.target.value),
+    [],
+  );
+
+  const handleSendMessage = useCallback(() => {
+    if (!userInput.trim() || isResponding) return;
+
+    if (firstLoad) {
+      setFirstLoad(false);
     }
 
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { content: newMessage, isBot: false },
-    ]);
+    const message = { content: userInput, isBot: false };
+    setIsResponding(true);
+    messageMutation.mutate(message);
+    setUserInput("");
+  }, [userInput, isResponding, messageMutation]);
 
-    setNewMessage("");
-    setEnableSend(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (isResponding) {
-      return;
-    }
-
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
 
-  useEffect(() => {
-    const messageGroup = document.getElementById("message-group");
-    if (messageGroup) {
-      if (pageCount <= 1) {
-        messageGroup.scrollTop = messageGroup.scrollHeight;
-      } else {
-        const messageLastIndex =
-          messageLastIndexRef.current?.getBoundingClientRect();
-        messageGroup.scrollTop = messageLastIndex.y;
-      }
+  useLayoutEffect(() => {
+    if (messageGroupRef.current) {
+      scrollToBottom();
     }
-  }, [messages]);
+  }, [firstLoad, messageGroupRef.current]);
 
   useEffect(() => {
-    (async () => {
-      if (messages.length === 0) {
-        return;
-      }
+    const messageGroup = messageGroupRef.current;
+    if (!messageGroup) return;
 
-      const lastMessage = messages[messages.length - 1];
-
-      if (lastMessage.isBot) {
-        return;
-      }
-
-      if (firstLoad) {
-        setFirstLoad(false);
-      }
-
-      setIsResponding(true);
-
-      try {
-        const { response } = await privateChat({
-          chatData: {
-            conversationId: conversationId,
-            message: lastMessage.content,
-          },
-          userId: currentUser?.id,
-        });
-
-        if(response.newConversation){
-          return navigate(`${Path["Conversation"]}/${response.newConversation._id}`)
-        }
-
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { content: response.newChat.response, isBot: true },
-        ]);
-      } catch (error) {
-        handleError(error as AppError);
-      } finally {
-        setIsResponding(false);
-      }
-    })();
-  }, [messages]);
+    messageGroup.addEventListener("scroll", handleScroll);
+    return () => messageGroup.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
 
   useEffect(() => {
-    (async () => {
-      try {
-        if (conversationId) {
-          const {
-            docs: paginatedChats,
-            totalPages,
-            hasNextPage,
-            hasPrevPage,
-          } = await fetchChatsByConversation(pageCount, conversationId);
-
-          if (paginatedChats.length === 0 || !totalPages) {
-            return setIsAtTop(false);
-          } else {
-            paginatedChats.reverse();
-            const mappedResponses = paginatedChats.map(({ response }) => ({
-              content: response,
-              isBot: true,
-            }));
-
-            const mappedMessages = paginatedChats.map(({ message }) => ({
-              content: message,
-              isBot: false,
-            }));
-
-            const mappedChats: ChatMessage[] = [];
-            const maxLength = Math.max(
-              mappedMessages.length,
-              mappedResponses.length
-            );
-
-            for (let i = 0; i < maxLength; i++) {
-              if (i < mappedMessages.length)
-                mappedChats.push(mappedMessages[i]);
-              if (i < mappedResponses.length)
-                mappedChats.push(mappedResponses[i]);
-            }
-
-            if (hasPrevPage) {
-              setMessages((prevMessages) => {
-                return [...mappedChats, ...prevMessages];
-              });
-            } else {
-              setMessages(mappedChats);
-            }
-            setMaxPages(totalPages);
-            setHasNextPage(hasNextPage);
-          }
-        }
-      } catch (error) {}
-    })();
-  }, [conversationId, pageCount]);
-
-  const handleScroll = () => {
-    const scrollElement = document.getElementById("message-group");
-
-    if (scrollElement?.scrollTop === 0) {
-      setIsAtTop(true);
-      increasePageCount(maxPages);
-    } else {
-      setIsAtTop(false);
-    }
-  };
-
-  useEffect(() => {
-    const scrollElement = document.getElementById("message-group");
-
-    if (scrollElement) {
-      scrollElement.addEventListener("scroll", handleScroll);
-    }
-
-    return () => {
-      if (scrollElement) {
-        scrollElement.removeEventListener("scroll", handleScroll);
-      }
-    };
-  }, [hasNextPage]);
-
-  useEffect(() => {
-    const scrollElement = document.getElementById("message-group");
-
-    if (!scrollElement) return;
-
-    if (!hasNextPage) {
-      scrollElement.removeEventListener("scroll", handleScroll);
-    }
-
-    return () => {
-      if (scrollElement) {
-        scrollElement.removeEventListener("scroll", handleScroll);
-      }
-    };
-  }, [hasNextPage]);
-
-  useEffect(() => {
-    resetPageCount;
-    setMessages([]);
-    setIsAtTop(false);
-    setHasNextPage(false)
+    setUserInput("");
+    resetPageCount();
   }, [conversationId]);
 
-  const lastIndex =
-    messages.length % 20 === 0
-      ? (pageCount - 1) * 20 - 1
-      : (messages.length % 20) - 1;
+  if (fetchingMessages) {
+    return (
+      <ChatContainer>
+        <Spinner />
+      </ChatContainer>
+    );
+  }
 
   return (
     <ChatContainer>
-      <Box sx={{ display: "flex" }}>
-        {isAtTop && hasNextPage && <CircularProgress />}
-      </Box>
-      <MessageGroup id="message-group">
+      <MessageGroup ref={messageGroupRef} id="message-group">
         {messages.length !== 0 &&
           messages.map(({ content, isBot }, index) => (
             <Box
-              key={index}
-              ref={(el) => {
-                if (index === lastIndex) {
-                  messageLastIndexRef.current = el;
-                }
-              }}
+              key={`${content}-${index}`}
               sx={(theme) => ({
                 display: "flex",
                 width: "50%",
@@ -455,8 +386,8 @@ export const ChatBox: FC = () => {
           multiline
           minRows={1}
           maxRows={5}
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
+          value={userInput}
+          onChange={handleChangeValue}
           onFocus={() => setEnableSend(true)}
           sx={{
             "& .MuiInputBase-root": {
@@ -472,7 +403,7 @@ export const ChatBox: FC = () => {
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton
-                    disabled={!enableSend || !newMessage.trim() || isResponding}
+                    disabled={!enableSend || !userInput.trim() || isResponding}
                     onClick={handleSendMessage}
                   >
                     <SendRounded />

@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC } from "react";
 import {
   Button,
   Divider,
@@ -10,7 +10,7 @@ import {
   ListItemText,
   styled,
 } from "@mui/material";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import MuiDrawer from "@mui/material/Drawer";
 import { useQuery } from "@tanstack/react-query";
 import { Theme, CSSObject } from "@mui/material/styles";
@@ -20,7 +20,6 @@ import { getConversations } from "../../api";
 import { usePrivateChatStore } from "./store";
 import { AddCircle } from "@mui/icons-material";
 import { Path } from "../../Router";
-import { Conversation } from "../../types";
 
 const drawerWidth = 240;
 
@@ -75,21 +74,20 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   alignItems: "center",
   justifyContent: "flex-end",
   padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
   ...theme.mixins.toolbar,
 }));
 
 export const SideBar: FC = () => {
   const navigate = useNavigate();
-  // const { conversationId } = useParams<{ conversationId: string }>();
   const {
-    value: { isSideBarOpen },
-    actions: { handleToggleDrawer },
+    value: { isSideBarOpen, conversations },
+    actions: { handleToggleDrawer, fetchConversations },
   } = usePrivateChatStore();
 
-  const { data: conversations } = useQuery({
+  useQuery({
     queryKey: ["conversations"],
-    queryFn: getConversations,
+    queryFn: fetchConversations,
+    enabled: conversations.length === 0,
   });
 
   const handleNewConversation = () => {
@@ -122,7 +120,7 @@ export const SideBar: FC = () => {
       <List>
         {conversations?.map(({ name, _id }) => (
           <ListItem
-            key={name}
+            key={_id}
             disablePadding
             sx={{ display: "block" }}
             onClick={() => handleNavigateConversations(_id)}
