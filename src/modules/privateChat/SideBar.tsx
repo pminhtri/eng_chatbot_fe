@@ -16,7 +16,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Theme, CSSObject } from "@mui/material/styles";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import { getConversations } from "../../api";
 import { usePrivateChatStore } from "./store";
 import { AddCircle } from "@mui/icons-material";
 import { Path } from "../../Router";
