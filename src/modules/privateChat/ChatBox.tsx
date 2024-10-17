@@ -259,7 +259,7 @@ export const ChatBox: FC = () => {
 
   const handleChangeValue = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => setUserInput(e.target.value),
-    [],
+    []
   );
 
   const handleSendMessage = useCallback(() => {
@@ -348,7 +348,7 @@ export const ChatBox: FC = () => {
             </Box>
           ))}
         {isResponding && renderSkeletonResponse()}
-        {messages.length === 0 && (
+        {messages.length === 0 && !fetchingMessages && (
           <Box
             display="flex"
             justifyContent="center"

@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useCallback, useEffect } from "react";
 import {
   Button,
   Divider,
@@ -12,13 +12,13 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import MuiDrawer from "@mui/material/Drawer";
-import { useQuery } from "@tanstack/react-query";
 import { Theme, CSSObject } from "@mui/material/styles";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { usePrivateChatStore } from "./store";
 import { AddCircle } from "@mui/icons-material";
 import { Path } from "../../Router";
+import { useGlobalStore } from "../../store";
 
 const drawerWidth = 240;
 
@@ -79,23 +79,34 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 export const SideBar: FC = () => {
   const navigate = useNavigate();
   const {
-    value: { isSideBarOpen, conversations },
-    actions: { handleToggleDrawer, fetchConversations },
+    value: { isSideBarOpen },
+    actions: { handleToggleDrawer, setCurrentConversationId },
   } = usePrivateChatStore();
+  const {
+    value: { conversations },
+    actions: { fetchConversations },
+  } = useGlobalStore();
 
-  useQuery({
-    queryKey: ["conversations"],
-    queryFn: fetchConversations,
-    enabled: conversations.length === 0,
-  });
+  useEffect(() => {
+    (async () => {
+      if (!conversations.length) {
+        await fetchConversations();
+      }
+    })();
+  }, [conversations]);
 
-  const handleNewConversation = () => {
-    return navigate(Path["Root"]);
-  };
+  const handleNewConversation = useCallback(() => {
+    setCurrentConversationId(null);
+    navigate(Path["Root"]);
+  }, [navigate]);
 
-  const handleNavigateConversations = (conversationId: string) => {
-    return navigate(`${Path["Conversation"]}/${conversationId}`);
-  };
+  const handleNavigateConversations = useCallback(
+    (conversationId: string) => {
+      setCurrentConversationId(conversationId);
+      navigate(`${Path["Conversation"]}/${conversationId}`);
+    },
+    [navigate]
+  );
 
   return (
     <Drawer variant="permanent" open={isSideBarOpen}>

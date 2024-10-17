@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { fetchChatsByConversation, getConversations } from "../../api";
-import { Conversation, PrivateChat } from "../../types";
+import { fetchChatsByConversation } from "../../api";
+import { PrivateChat } from "../../types";
 import { uniqBy } from "lodash";
 
 export type AppMessage = {
@@ -10,7 +10,7 @@ export type AppMessage = {
 
 type State = {
   messages: AppMessage[];
-  conversations: Conversation[];
+  currentConversationId: string | null;
   pageCount: number;
   totalPage: number;
   isSideBarOpen: boolean;
@@ -20,9 +20,9 @@ type Action = {
   increasePageCount: (totalPages: number) => void;
   resetPageCount: () => void;
   handleToggleDrawer: () => void;
+  setCurrentConversationId: (conversationId: string | null) => void;
   fetchMessages: (conversationId: string) => Promise<PrivateChat[]>;
   loadMoreMessages: (conversationId: string) => Promise<void>;
-  fetchConversations: () => Promise<Conversation[]>;
   appendMessages: (messages: AppMessage[]) => void;
 };
 
@@ -33,7 +33,7 @@ type Store = {
 
 const initialStateValue: State = {
   messages: [],
-  conversations: [],
+  currentConversationId: null,
   pageCount: 1,
   totalPage: 1,
   isSideBarOpen: true,
@@ -58,6 +58,11 @@ const useStore = create<Store>((set, get) => ({
       set((state) => ({
         value: { ...state.value, isSideBarOpen: !state.value.isSideBarOpen },
       })),
+    setCurrentConversationId: (conversationId) => {
+      set((state) => ({
+        value: { ...state.value, currentConversationId: conversationId },
+      }));
+    },
     appendMessages: (newMessages: AppMessage[]) => {
       set((state) => ({
         value: {
@@ -91,15 +96,6 @@ const useStore = create<Store>((set, get) => ({
       }));
 
       return docs;
-    },
-    fetchConversations: async () => {
-      const conversations = await getConversations();
-
-      set((state) => ({
-        value: { ...state.value, conversations },
-      }));
-
-      return conversations;
     },
     loadMoreMessages: async (conversationId) => {
       const { pageCount, totalPage } = get().value;

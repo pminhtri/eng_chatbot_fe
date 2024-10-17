@@ -2,9 +2,15 @@ import { FC } from "react";
 import { Header, Layout } from "../../layouts";
 import { Avatar, Box } from "@mui/material";
 import SideBar from "./SideBar";
+import { Outlet } from "react-router-dom";
 import { ChatBox } from "./ChatBox";
+import { usePrivateChatStore } from "./store";
 
 export const PrivateChat: FC = () => {
+  const {
+    value: { currentConversationId },
+  } = usePrivateChatStore();
+
   return (
     <Layout
       renderHeader={
@@ -20,9 +26,9 @@ export const PrivateChat: FC = () => {
           </Box>
         </Header>
       }
+      renderSidebar={<SideBar />}
     >
-      <SideBar />
-      <ChatBox />
+      {currentConversationId ? <Outlet /> : <ChatBox />}
     </Layout>
   );
 };
