@@ -1,5 +1,6 @@
-import { FC, useState } from "react";
+import { FC, useCallback, useEffect } from "react";
 import {
+  Button,
   Divider,
   IconButton,
   List,
@@ -9,13 +10,15 @@ import {
   ListItemText,
   styled,
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import MuiDrawer from "@mui/material/Drawer";
-import { useQuery } from "@tanstack/react-query";
 import { Theme, CSSObject } from "@mui/material/styles";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import { getConversations } from "../../api";
+import { usePrivateChatStore } from "./store";
+import { AddCircle } from "@mui/icons-material";
+import { Path } from "../../Router";
+import { useGlobalStore } from "../../store";
 
 const drawerWidth = 240;
 
@@ -70,38 +73,67 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   alignItems: "center",
   justifyContent: "flex-end",
   padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
   ...theme.mixins.toolbar,
 }));
 
 export const SideBar: FC = () => {
-  const [isOpen, setIsOpen] = useState<boolean>(true);
+  const navigate = useNavigate();
+  const {
+    value: { isSideBarOpen },
+    actions: { handleToggleDrawer, setCurrentConversationId },
+  } = usePrivateChatStore();
+  const {
+    value: { conversations },
+    actions: { fetchConversations },
+  } = useGlobalStore();
 
-  const handleToggleDrawer = () => {
-    setIsOpen(!isOpen);
-  };
+  useEffect(() => {
+    (async () => {
+      if (!conversations.length) {
+        await fetchConversations();
+      }
+    })();
+  }, [conversations]);
 
-  const { data: conversations } = useQuery({
-    queryKey: ["conversations"],
-    queryFn: getConversations,
-  });
+  const handleNewConversation = useCallback(() => {
+    setCurrentConversationId(null);
+    navigate(Path["Root"]);
+  }, [navigate]);
+
+  const handleNavigateConversations = useCallback(
+    (conversationId: string) => {
+      setCurrentConversationId(conversationId);
+      navigate(`${Path["Conversation"]}/${conversationId}`);
+    },
+    [navigate]
+  );
 
   return (
-    <Drawer variant="permanent" open={isOpen}>
+    <Drawer variant="permanent" open={isSideBarOpen}>
       <DrawerHeader>
         <IconButton onClick={handleToggleDrawer}>
-          {isOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+          {isSideBarOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
         </IconButton>
       </DrawerHeader>
+      <Divider />
+      <>
+        <Button
+          variant="text"
+          color="info"
+          startIcon={<AddCircle />}
+          onClick={handleNewConversation}
+        >
+          New Conversation
+        </Button>
+      </>
       <Divider />
       <List>
         {conversations?.map(({ name, _id }) => (
           <ListItem
-            key={name}
-            component={Link}
-            to={`/conversation/${_id}`}
+            key={_id}
             disablePadding
             sx={{ display: "block" }}
+            onClick={() => handleNavigateConversations(_id)}
           >
             <ListItemButton
               sx={[
@@ -109,7 +141,7 @@ export const SideBar: FC = () => {
                   minHeight: 48,
                   px: 2.5,
                 },
-                isOpen
+                isSideBarOpen
                   ? {
                       justifyContent: "initial",
                     }
@@ -124,7 +156,7 @@ export const SideBar: FC = () => {
                     minWidth: 0,
                     justifyContent: "center",
                   },
-                  isOpen
+                  isSideBarOpen
                     ? {
                         mr: 3,
                       }
@@ -138,7 +170,7 @@ export const SideBar: FC = () => {
               <ListItemText
                 primary={name}
                 sx={[
-                  isOpen
+                  isSideBarOpen
                     ? {
                         opacity: 1,
                       }

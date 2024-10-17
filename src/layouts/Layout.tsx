@@ -5,6 +5,7 @@ type Props = {
   children: React.ReactNode;
   renderHeader?: React.ReactElement;
   renderFooter?: React.ReactElement;
+  renderSidebar?: React.ReactElement;
 };
 
 const Container = styled(Box)(({ theme }) => ({
@@ -28,12 +29,15 @@ const Content = styled(Box)(({ theme }) => ({
 }));
 
 const Layout: FC<Props> = (props) => {
-  const { children, renderHeader, renderFooter } = props;
+  const { children, renderHeader, renderFooter, renderSidebar } = props;
 
   return (
     <Container>
       {renderHeader && <Box>{renderHeader}</Box>}
-      <Content>{children}</Content>
+      <Content>
+        {renderSidebar && <Box>{renderSidebar}</Box>}
+        {children}
+      </Content>
       {renderFooter && <Box>{renderFooter}</Box>}
     </Container>
   );
