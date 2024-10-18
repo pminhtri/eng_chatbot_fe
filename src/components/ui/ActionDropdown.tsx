@@ -1,26 +1,22 @@
-import { Box, MenuProps } from "@mui/material";
+import { Box, Divider, Menu, MenuItem, MenuProps } from "@mui/material";
 import { FC, useState } from "react";
-import { ActionMenu } from "./ActionMenu";
 
 type Action = {
   element: React.ReactElement;
-  onClick: () => void;
+  onClick?: () => void;
+  dividerTop?: boolean;
+  dividerBottom?: boolean;
 };
 
 type Props = {
   children: React.ReactNode;
   actions: Action[];
-  position?: {
-    top: number;
-    left: number;
-  };
   orientation?: "vertical" | "horizontal";
 } & Omit<MenuProps, "open" | "onClose" | "anchorEl">;
 
 export const ActionDropdown: FC<Props> = ({
   children,
   actions,
-  position,
   orientation = "vertical",
   ...rest
 }) => {
@@ -36,7 +32,7 @@ export const ActionDropdown: FC<Props> = ({
   };
 
   const handleActionClick = (action: Action) => {
-    action.onClick();
+    action.onClick?.();
     closeMenu();
   };
 
@@ -50,24 +46,52 @@ export const ActionDropdown: FC<Props> = ({
       >
         {children}
       </Box>
-      <ActionMenu
-        open={open}
+      <Menu
         anchorEl={anchorEl}
-        actions={actions.map((action) => ({
-          ...action,
-          onClick: () => handleActionClick(action),
-        }))}
         onClose={closeMenu}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "left",
+        open={open}
+        disableAutoFocusItem
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: "8px",
+              padding: "4px",
+              height: "fit-content",
+            },
+          },
         }}
         {...rest}
-      />
+      >
+        {actions.map(
+          ({ element, onClick, dividerTop, dividerBottom }, index) => (
+            <div key={index}>
+              {dividerTop && (
+                <Box sx={{ width: "100%", height: "1px", color: "red", py: 1 }}>
+                  <Divider />
+                </Box>
+              )}
+              <MenuItem
+                sx={{
+                  padding: 0,
+                  margin: 0,
+                  borderRadius: "4px",
+                  "&:hover": {
+                    backgroundColor: "rgba(0, 0, 0, 0.08)",
+                  },
+                }}
+                onClick={() => handleActionClick({ element, onClick })}
+              >
+                {element}
+              </MenuItem>
+              {dividerBottom && (
+                <Box sx={{ width: "100%", height: "1px", color: "red", py: 1 }}>
+                  <Divider />
+                </Box>
+              )}
+            </div>
+          ),
+        )}
+      </Menu>
     </div>
   );
 };

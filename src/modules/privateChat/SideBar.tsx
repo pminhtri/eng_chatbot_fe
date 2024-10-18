@@ -7,10 +7,11 @@ import {
   ListItemButton,
   ListItemText,
   styled,
+  useMediaQuery,
 } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import MuiDrawer from "@mui/material/Drawer";
-import { Theme, CSSObject } from "@mui/material/styles";
+import { Theme, CSSObject, useTheme } from "@mui/material/styles";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import {
   AddCircle,
@@ -82,40 +83,17 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 const ActionMenuContainer = styled(Box)(() => ({
   display: "flex",
   width: "100%",
-  padding: 8,
-  flexDirection: "row",
-  alignItems: "space-between",
+  padding: "8px",
   gap: 8,
+  flexDirection: "row",
+  justifyContent: "flex-start",
 }));
 
-const actions = [
-  {
-    element: (
-      <ActionMenuContainer>
-        <EditOutlined />
-        Rename
-      </ActionMenuContainer>
-    ),
-    onClick: () => console.log("Rename"),
-  },
-  {
-    element: (
-      <ActionMenuContainer
-        style={{
-          color: "red",
-        }}
-      >
-        <DeleteForeverOutlined color="error" />
-        Delete
-      </ActionMenuContainer>
-    ),
-    onClick: () => console.log("Delete"),
-  },
-];
-
 export const SideBar: FC = () => {
+  const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useMediaQuery(theme.breakpoints.down("tablet"));
   const {
     value: { isSideBarOpen },
     actions: { handleToggleDrawer, setCurrentConversationId },
@@ -137,6 +115,12 @@ export const SideBar: FC = () => {
     })();
   }, [conversations]);
 
+  useEffect(() => {
+    if (isMobile && isSideBarOpen) {
+      handleToggleDrawer();
+    }
+  }, [isMobile]);
+
   const handleNewConversation = useCallback(() => {
     setCurrentConversationId(null);
     navigate(Path["Root"]);
@@ -147,11 +131,18 @@ export const SideBar: FC = () => {
       setCurrentConversationId(conversationId);
       navigate(`${Path["Conversation"]}/${conversationId}`);
     },
-    [navigate]
+    [navigate],
   );
 
   return (
-    <Drawer variant="permanent" open={isSideBarOpen}>
+    <Drawer
+      variant={isMobile ? "temporary" : "permanent"}
+      open={isSideBarOpen}
+      onClose={handleToggleDrawer}
+      ModalProps={{
+        keepMounted: true,
+      }}
+    >
       <DrawerHeader>
         <IconButton onClick={handleToggleDrawer}>
           {isSideBarOpen && <ChevronLeftIcon />}
@@ -252,7 +243,32 @@ export const SideBar: FC = () => {
                   },
                 }}
               >
-                <ActionDropdown actions={actions}>
+                <ActionDropdown
+                  actions={[
+                    {
+                      element: (
+                        <ActionMenuContainer>
+                          <EditOutlined />
+                          Rename
+                        </ActionMenuContainer>
+                      ),
+                      onClick: () => console.log("Rename", _id),
+                    },
+                    {
+                      element: (
+                        <ActionMenuContainer
+                          style={{
+                            color: "red",
+                          }}
+                        >
+                          <DeleteForeverOutlined color="error" />
+                          Delete
+                        </ActionMenuContainer>
+                      ),
+                      onClick: () => console.log("Delete", _id),
+                    },
+                  ]}
+                >
                   <MoreHorizOutlined />
                 </ActionDropdown>
               </Box>

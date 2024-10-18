@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { PageNotFound } from "./errors";
 import configs from "./configs";
-import { i18n } from "./utils";
+import { hasPermission, i18n } from "./utils";
 import { useGlobalStore } from "./store";
 import { useErrorHandler } from "./hooks";
 import { AppError } from "./types";
@@ -127,9 +127,7 @@ const AuthorizedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to={Path["Login"]} replace />;
   }
 
-  const hasPermission = [Role.Admin].includes(currentUser.role as Role);
-
-  if (!hasPermission) {
+  if (!hasPermission([currentUser.role as Role], [Role.Admin])) {
     return <Navigate to={Path["PermissionDenied"]} replace />;
   }
 
