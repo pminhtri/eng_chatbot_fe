@@ -124,7 +124,7 @@ const Admin = () => {
                   {summaryUserActivities
                     .slice(
                       currentPage * pageSize,
-                      currentPage * pageSize + pageSize
+                      currentPage * pageSize + pageSize,
                     )
                     .map((row, index) => (
                       <TableRow className="data-row" hover key={index}>

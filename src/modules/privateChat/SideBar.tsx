@@ -1,34 +1,40 @@
-import { FC, useCallback, useEffect } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import {
-  Button,
-  Divider,
+  Box,
   IconButton,
   List,
   ListItem,
   ListItemButton,
-  ListItemIcon,
   ListItemText,
   styled,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import MuiDrawer from "@mui/material/Drawer";
 import { Theme, CSSObject } from "@mui/material/styles";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import {
+  AddCircle,
+  DeleteForeverOutlined,
+  EditOutlined,
+  MoreHorizOutlined,
+} from "@mui/icons-material";
+
 import { usePrivateChatStore } from "./store";
-import { AddCircle } from "@mui/icons-material";
 import { Path } from "../../Router";
 import { useGlobalStore } from "../../store";
-
-const drawerWidth = 240;
+import { color } from "../../constants";
+import { ActionDropdown } from "../../components/ui";
 
 const openedMixin = (theme: Theme): CSSObject => ({
-  width: drawerWidth,
+  width: 250,
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.enteringScreen,
   }),
   overflowX: "hidden",
+  [theme.breakpoints.down("tablet")]: {
+    width: 200,
+  },
 });
 
 const closedMixin = (theme: Theme): CSSObject => ({
@@ -37,16 +43,13 @@ const closedMixin = (theme: Theme): CSSObject => ({
     duration: theme.transitions.duration.leavingScreen,
   }),
   overflowX: "hidden",
-  width: `calc(${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up("laptop")]: {
-    width: `calc(${theme.spacing(8)} + 1px)`,
-  },
+  width: 0,
 });
 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme }) => ({
-  width: drawerWidth,
+  width: 250,
   flexShrink: 0,
   whiteSpace: "nowrap",
   boxSizing: "border-box",
@@ -76,8 +79,43 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
+const ActionMenuContainer = styled(Box)(() => ({
+  display: "flex",
+  width: "100%",
+  padding: 8,
+  flexDirection: "row",
+  alignItems: "space-between",
+  gap: 8,
+}));
+
+const actions = [
+  {
+    element: (
+      <ActionMenuContainer>
+        <EditOutlined />
+        Rename
+      </ActionMenuContainer>
+    ),
+    onClick: () => console.log("Rename"),
+  },
+  {
+    element: (
+      <ActionMenuContainer
+        style={{
+          color: "red",
+        }}
+      >
+        <DeleteForeverOutlined color="error" />
+        Delete
+      </ActionMenuContainer>
+    ),
+    onClick: () => console.log("Delete"),
+  },
+];
+
 export const SideBar: FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     value: { isSideBarOpen },
     actions: { handleToggleDrawer, setCurrentConversationId },
@@ -86,6 +124,10 @@ export const SideBar: FC = () => {
     value: { conversations },
     actions: { fetchConversations },
   } = useGlobalStore();
+
+  const [hoveredConversationId, setHoveredConversationId] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     (async () => {
@@ -112,61 +154,78 @@ export const SideBar: FC = () => {
     <Drawer variant="permanent" open={isSideBarOpen}>
       <DrawerHeader>
         <IconButton onClick={handleToggleDrawer}>
-          {isSideBarOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+          {isSideBarOpen && <ChevronLeftIcon />}
         </IconButton>
       </DrawerHeader>
-      <Divider />
-      <>
-        <Button
-          variant="text"
-          color="info"
-          startIcon={<AddCircle />}
+      <div>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 2,
+            height: 40,
+            backgroundColor: color.ZINC[100],
+            "&:hover": {
+              cursor: "pointer",
+            },
+          }}
           onClick={handleNewConversation}
         >
+          <AddCircle />
           New Conversation
-        </Button>
-      </>
-      <Divider />
-      <List>
+        </Box>
+      </div>
+      <List
+        sx={{
+          px: 1,
+        }}
+      >
         {conversations?.map(({ name, _id }) => (
           <ListItem
             key={_id}
             disablePadding
-            sx={{ display: "block" }}
-            onClick={() => handleNavigateConversations(_id)}
+            sx={{
+              display: "flex",
+              direction: "row",
+              px: 2,
+              height: 40,
+              borderRadius: 2,
+              justifyContent: "space-between",
+              alignItems: "center",
+              backgroundColor:
+                location.pathname === `${Path["Conversation"]}/${_id}`
+                  ? `${color.ZINC[200]}`
+                  : "transparent",
+              "&:hover": {
+                backgroundColor: `
+                  ${
+                    location.pathname === `${Path["Conversation"]}/${_id}`
+                      ? color.ZINC[200]
+                      : color.ZINC[100]
+                  }
+                `,
+              },
+            }}
+            onMouseEnter={() => setHoveredConversationId(_id)}
+            onMouseLeave={() => setHoveredConversationId(null)}
           >
             <ListItemButton
-              sx={[
-                {
-                  minHeight: 48,
-                  px: 2.5,
+              disableTouchRipple
+              disableGutters
+              disableRipple
+              sx={{
+                display: "flex",
+                justifyContent: "flex-start",
+                alignItems: "center",
+                width: "100%",
+                backgroundColor: "transparent",
+                "&:hover": {
+                  backgroundColor: "transparent",
                 },
-                isSideBarOpen
-                  ? {
-                      justifyContent: "initial",
-                    }
-                  : {
-                      justifyContent: "center",
-                    },
-              ]}
+              }}
+              onClick={() => handleNavigateConversations(_id)}
             >
-              <ListItemIcon
-                sx={[
-                  {
-                    minWidth: 0,
-                    justifyContent: "center",
-                  },
-                  isSideBarOpen
-                    ? {
-                        mr: 3,
-                      }
-                    : {
-                        mr: "auto",
-                      },
-                ]}
-              >
-                {/* {index % 2 === 0 ? <InboxIcon /> : <MailIcon />} */}
-              </ListItemIcon>
               <ListItemText
                 primary={name}
                 sx={[
@@ -180,10 +239,27 @@ export const SideBar: FC = () => {
                 ]}
               />
             </ListItemButton>
+            {(hoveredConversationId === _id ||
+              location.pathname === `${Path["Conversation"]}/${_id}`) && (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  alignItems: "center",
+                  color: color.ZINC[500],
+                  "&:hover": {
+                    cursor: "pointer",
+                  },
+                }}
+              >
+                <ActionDropdown actions={actions}>
+                  <MoreHorizOutlined />
+                </ActionDropdown>
+              </Box>
+            )}
           </ListItem>
         ))}
       </List>
-      <Divider />
     </Drawer>
   );
 };

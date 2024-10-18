@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { Header, Layout } from "../../layouts";
-import { Avatar, Box } from "@mui/material";
+import { Avatar, Box, IconButton } from "@mui/material";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SideBar from "./SideBar";
 import { Outlet } from "react-router-dom";
 import { ChatBox } from "./ChatBox";
@@ -8,7 +9,8 @@ import { usePrivateChatStore } from "./store";
 
 export const PrivateChat: FC = () => {
   const {
-    value: { currentConversationId },
+    value: { currentConversationId, isSideBarOpen },
+    actions: { handleToggleDrawer },
   } = usePrivateChatStore();
 
   return (
@@ -18,10 +20,15 @@ export const PrivateChat: FC = () => {
           <Box
             display="flex"
             width="100%"
-            justifyContent="flex-end"
+            justifyContent={`${isSideBarOpen ? "flex-end" : "space-between"}`}
             alignItems="center"
             paddingRight={4}
           >
+            {!isSideBarOpen && (
+              <IconButton onClick={handleToggleDrawer}>
+                <ChevronRightIcon />
+              </IconButton>
+            )}
             <Avatar />
           </Box>
         </Header>

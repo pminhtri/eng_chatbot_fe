@@ -259,7 +259,7 @@ export const ChatBox: FC = () => {
 
   const handleChangeValue = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => setUserInput(e.target.value),
-    []
+    [],
   );
 
   const handleSendMessage = useCallback(() => {

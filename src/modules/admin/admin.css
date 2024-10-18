@@ -1,7 +1,7 @@
 .data-row {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .data-row:hover {
-    border: 2px solid #00e673;
+  border: 2px solid #00e673;
 }
