@@ -19,11 +19,10 @@ import { styled } from "@mui/material";
 
 const StyleButton = styled(Button)({
   padding: "10px 100px",
-  backgroundColor: "#00994d",
+  backgroundColor: "black",
   color: "white",
   "&:hover": {
-    backgroundColor: "white",
-    color: "#00994d",
+    backgroundColor: "gray"
   },
 });
 
@@ -71,14 +70,13 @@ const Admin = () => {
     <div>
       <Container fixed>
         <Grid
-          bgcolor={"#e6ffff"}
           container
           style={{ height: "100vh" }} // Full viewport height
           alignItems="center"
           justifyContent="center"
         >
-          <Grid size={10}>
-            <h2 style={{ textAlign: "center", color: "#00994d" }}>
+          <Grid size={12}>
+            <h2 style={{ textAlign: "center"}}>
               Welcome admin, list of users in below table
             </h2>
             <div
@@ -87,8 +85,15 @@ const Admin = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 marginBottom: "20px",
+                gap: "30px"
               }}
             >
+              <StyleButton
+                size="small"
+                variant="contained"
+                text={"DASHBOARD"}
+                onClick={() => {navigate('/')}}
+              ></StyleButton>
               <StyleButton
                 size="small"
                 variant="contained"
@@ -97,11 +102,11 @@ const Admin = () => {
               ></StyleButton>
             </div>
             <TableContainer
-              sx={{ height: "270px", textAlign: "center" }}
+              sx={{ height: "300px", textAlign: "center" }}
               component={Paper}
             >
               <Table sx={{ tableLayout: "fixed" }} aria-label="simple table">
-                <TableHead sx={{ bgcolor: "#00994d" }}>
+                <TableHead sx={{ bgcolor: "black", position: "sticky", top: "0"}}>
                   <TableRow>
                     <TableCell
                       sx={{ fontWeight: "bold", color: "white", width: "20%" }}
@@ -133,10 +138,10 @@ const Admin = () => {
                           component="th"
                           scope="row"
                         >
-                          {currentPage * pageSize + index + 1}
+                        <b>{currentPage * pageSize + index + 1}</b>
                         </TableCell>
-                        <TableCell>{row.email}</TableCell>
-                        <TableCell>{row.total_messages}</TableCell>
+                        <TableCell><b>{row.email}</b></TableCell>
+                        <TableCell><b>{row.total_messages}</b></TableCell>
                       </TableRow>
                     ))}
                 </TableBody>
