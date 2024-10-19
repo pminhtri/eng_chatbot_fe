@@ -37,12 +37,13 @@ const Admin = () => {
   const [summaryUserActivities, setSummaryUserActivities] = useState<
     SummaryUserActivities[]
   >([]);
-  const [currentDate, setCurrentdate] = useState(new Date());
   const [requestsInWeek, setRequestsInWeek] = useState<RequestsInWeek[]>([]);
   const handleLogout = async () => {
     await logout();
     navigate(Path["Login"]);
   };
+
+  const currentDate = new Date();
 
   useEffect(() => {
     const fetchUserLog = async () => {
