@@ -1,17 +1,20 @@
 import {
   alpha,
   Box,
-  Divider,
   Grid2,
   IconButton,
   styled,
   TextField,
 } from "@mui/material";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { common } from "@mui/material/colors";
 
 import { Button, Typography } from "../../components/ui";
-import { color } from "../../constants";
+import {
+  color,
+  VALID_EMAIL_REGEX,
+  VALID_PASSWORD_REGEX,
+} from "../../constants";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Controller, FormProvider, useForm } from "react-hook-form";
@@ -21,7 +24,6 @@ import { ErrorCode } from "../../enums";
 import { Layout } from "../../layouts";
 import { formatRules } from "../../utils/validation";
 import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
-import ThirdPartyAuth from "./ThirdPartyAuth";
 import { useAuthStore } from "./store";
 import { Path } from "../../Router";
 
@@ -126,7 +128,7 @@ const Register: FC = () => {
   const {
     actions: { register },
   } = useAuthStore();
-  const { showSuccessMessage } = useAlert();
+  const { showSuccessMessage, showErrorMessage } = useAlert();
   const { handleError } = useErrorHandler();
 
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -144,29 +146,74 @@ const Register: FC = () => {
     },
   });
 
-  const handleSubmit = form.handleSubmit(async ({ email, password }) => {
-    try {
-      setExecuting(true);
-      await register(email, password);
-      showSuccessMessage(t("Register Successfully!"));
-      setExecuting(false);
-      navigate(Path["Login"]);
-    } catch (error) {
-      const appError = error as AppError;
+  const { control, getFieldState } = form;
+  const { error: emailError } = getFieldState("email");
+  const { error: passwordError } = getFieldState("password");
+  const { error: confirmPasswordError } = getFieldState("confirmPassword");
 
-      if (appError.code === ErrorCode.EMAIL_ALREADY_EXISTS) {
+  const handleSubmit = form.handleSubmit(
+    async ({ email, password, confirmPassword }) => {
+      if (VALID_EMAIL_REGEX.test(email) === false) {
         form.setError("email", {
           type: "manual",
-          message: t("emailAlreadyExists"),
+          message: t("error.invalidEmail"),
         });
-
-        setErrorMessage(t("emailAlreadyExists"));
+        showErrorMessage(t("error.invalidEmail"));
+        return;
       }
 
-      handleError(appError);
-      setExecuting(false);
+      if (password !== confirmPassword) {
+        form.setError("confirmPassword", {
+          type: "manual",
+          message: t("error.passwordNotMatch"),
+        });
+        showErrorMessage(t("error.passwordNotMatch"));
+        return;
+      }
+
+      if (VALID_PASSWORD_REGEX.test(password) === false) {
+        form.setError("password", {
+          type: "manual",
+          message: t("error.invalidPassword"),
+        });
+        showErrorMessage(t("error.invalidPassword"));
+        return;
+      }
+
+      try {
+        setExecuting(true);
+        await register(email, password);
+        showSuccessMessage(t("Register Successfully!"));
+        setExecuting(false);
+        navigate(Path["Login"]);
+      } catch (error) {
+        const appError = error as AppError;
+
+        if (appError.code === ErrorCode.EMAIL_ALREADY_EXISTS) {
+          form.setError("email", {
+            type: "manual",
+            message: t("emailAlreadyExists"),
+          });
+
+          setErrorMessage(t("emailAlreadyExists"));
+        }
+
+        handleError(appError);
+        setExecuting(false);
+      }
+    },
+  );
+
+  useEffect(() => {
+    if (form.watch("password") !== form.watch("confirmPassword")) {
+      form.setError("confirmPassword", {
+        type: "manual",
+        message: t("error.passwordNotMatch"),
+      });
+    } else {
+      form.clearErrors("confirmPassword");
     }
-  });
+  }, [form.watch("password"), form.watch("confirmPassword")]);
 
   return (
     <Layout>
@@ -178,7 +225,7 @@ const Register: FC = () => {
               <InputGroup>
                 <Controller
                   name="email"
-                  control={form.control}
+                  control={control}
                   rules={formatRules({ required: true })}
                   render={({ field }) => (
                     <TextInput
@@ -189,7 +236,7 @@ const Register: FC = () => {
                       size="small"
                       fullWidth
                       helperText={errorMessage}
-                      error={!!errorMessage}
+                      error={!!emailError}
                       sx={{
                         "& .MuiInputBase-root": {
                           color: "black",
@@ -205,7 +252,7 @@ const Register: FC = () => {
               <InputGroup>
                 <Controller
                   name="password"
-                  control={form.control}
+                  control={control}
                   rules={formatRules({ required: true })}
                   render={({ field }) => (
                     <TextInput
@@ -216,7 +263,7 @@ const Register: FC = () => {
                       size="small"
                       fullWidth
                       helperText={errorMessage}
-                      error={!!errorMessage}
+                      error={!!passwordError}
                       sx={{
                         "& .MuiInputBase-root": {
                           color: "black",
@@ -256,7 +303,7 @@ const Register: FC = () => {
               <InputGroup>
                 <Controller
                   name="confirmPassword"
-                  control={form.control}
+                  control={control}
                   rules={formatRules({ required: true })}
                   render={({ field }) => (
                     <TextInput
@@ -267,7 +314,7 @@ const Register: FC = () => {
                       size="small"
                       fullWidth
                       helperText={errorMessage}
-                      error={!!errorMessage}
+                      error={!!confirmPasswordError}
                       sx={{
                         "& .MuiInputBase-root": {
                           color: "black",
@@ -334,18 +381,6 @@ const Register: FC = () => {
                   />
                 </Link>
               </Box>
-              <Divider
-                sx={{ margin: "20px 0" }}
-                variant="middle"
-                children={
-                  <Typography
-                    type="body-1"
-                    color="textSecondary"
-                    translationKey="or"
-                  />
-                }
-              />
-              <ThirdPartyAuth />
             </RegisterContent>
           </FormProvider>
         </RegisterForm>

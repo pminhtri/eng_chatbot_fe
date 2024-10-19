@@ -5,7 +5,6 @@ import { Controller, FormProvider, useForm } from "react-hook-form";
 import {
   alpha,
   Box,
-  Divider,
   Grid2,
   IconButton,
   styled,
@@ -15,14 +14,17 @@ import { common } from "@mui/material/colors";
 import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
 
 import { useAuthStore } from "./store";
-import { useErrorHandler } from "../../hooks";
+import { useAlert, useErrorHandler } from "../../hooks";
 import { AppError } from "../../types";
 import { Button, Typography } from "../../components/ui";
 import { Layout } from "../../layouts";
-import { color } from "../../constants";
+import {
+  color,
+  VALID_EMAIL_REGEX,
+  VALID_PASSWORD_REGEX,
+} from "../../constants";
 import { formatRules } from "../../utils/validation";
 
-import ThirdPartyAuth from "./ThirdPartyAuth";
 import { ErrorCode } from "../../enums";
 import { Path } from "../../Router";
 
@@ -43,6 +45,7 @@ const LoginContainer = styled(Grid2)({
 const LoginForm = styled("form")({
   display: "flex",
   flexDirection: "column",
+  height: "300px",
   borderRadius: 8,
   border: `1px solid ${color.ZINC[300]}`,
   boxShadow: "0px 2px 6px 0px rgba(97, 110, 124, 0.20)",
@@ -134,6 +137,12 @@ const Login = () => {
       password: "",
     },
   });
+
+  const { control, getFieldState } = form;
+  const { error: emailError } = getFieldState("email");
+  const { error: passwordError } = getFieldState("password");
+
+  const { showErrorMessage } = useAlert();
   const { handleError } = useErrorHandler();
 
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -142,6 +151,24 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const handleLogin = form.handleSubmit(async ({ email, password }) => {
+    if (VALID_EMAIL_REGEX.test(email) === false) {
+      form.setError("email", {
+        type: "manual",
+        message: t("error.invalidEmail"),
+      });
+      showErrorMessage(t("error.invalidEmail"));
+      return;
+    }
+
+    if (VALID_PASSWORD_REGEX.test(password) === false) {
+      form.setError("password", {
+        type: "manual",
+        message: t("error.invalidPassword"),
+      });
+      showErrorMessage(t("error.invalidPassword"));
+      return;
+    }
+
     try {
       setErrorMessage("");
       setExecuting(true);
@@ -176,7 +203,7 @@ const Login = () => {
               <InputGroup>
                 <Controller
                   name="email"
-                  control={form.control}
+                  control={control}
                   rules={formatRules({ required: true, email: true })}
                   render={({ field }) => (
                     <TextInput
@@ -187,7 +214,7 @@ const Login = () => {
                       size="small"
                       fullWidth
                       helperText={errorMessage}
-                      error={!!errorMessage}
+                      error={!!emailError}
                       sx={{
                         "& .MuiInputBase-root": {
                           color: "black",
@@ -203,7 +230,7 @@ const Login = () => {
               <InputGroup>
                 <Controller
                   name="password"
-                  control={form.control}
+                  control={control}
                   rules={formatRules({ required: true })}
                   render={({ field }) => (
                     <TextInput
@@ -214,7 +241,7 @@ const Login = () => {
                       size="small"
                       fullWidth
                       helperText={errorMessage}
-                      error={!!errorMessage}
+                      error={!!passwordError}
                       sx={{
                         "& .MuiInputBase-root": {
                           color: "black",
@@ -279,18 +306,6 @@ const Login = () => {
                   />
                 </Link>
               </Box>
-              <Divider
-                sx={{ margin: "20px 0" }}
-                variant="middle"
-                children={
-                  <Typography
-                    type="body-1"
-                    color="textSecondary"
-                    translationKey="or"
-                  />
-                }
-              />
-              <ThirdPartyAuth />
             </LoginContent>
           </FormProvider>
         </LoginForm>

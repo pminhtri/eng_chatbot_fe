@@ -17,7 +17,7 @@ export const formatRules = (rules?: Partial<InputRules>): OutputRules => {
           ...next,
           pattern: {
             value: VALID_EMAIL_REGEX,
-            message: "validation.invalidEmail",
+            message: "error.invalidEmail",
           },
         };
       }

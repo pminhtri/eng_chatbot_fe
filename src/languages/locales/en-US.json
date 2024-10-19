@@ -5,6 +5,7 @@
   "alertError": "Error",
   "email": "Email",
   "password": "Password",
+  "confirmPassword": "Confirm password",
   "login": "Login",
   "register": "Register",
   "loginWithGoogle": "Continue with Google",
@@ -16,5 +17,8 @@
   "error.pageNotFound": "Page not found",
   "error.somethingWentWrong": "Something went wrong",
   "error.internal": "Internal server error",
+  "error.invalidEmail": "Invalid email",
+  "error.invalidPassword": "Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, one number and one special character",
+  "error.passwordNotMatch": "Password does not match",
   "defaultContent": "Welcome to English Chatbot!"
 }
