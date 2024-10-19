@@ -20,7 +20,7 @@ import { BarChart } from "@mui/x-charts/BarChart";
 import { DAY_IN_WEEK } from "../../constants";
 import { Layout } from "../../layouts";
 
-const StyleButton = styled(Button)({
+const StyledButton = styled(Button)({
   padding: "10px 100px",
   backgroundColor: "black",
   color: "white",
@@ -60,7 +60,7 @@ const Admin = () => {
   const pageSize = 5;
   const [currentPage, setCurrentPage] = useState(0);
 
-  const handleNextpage = () => {
+  const handleNextPage = () => {
     if (
       currentPage + 1 <
       Math.floor(summaryUserActivities.length / pageSize) + 1
@@ -69,14 +69,14 @@ const Admin = () => {
     }
   };
 
-  const handlePreviospage = () => {
+  const handlePreviousPage = () => {
     if (currentPage + 1 > 1) {
       setCurrentPage((e) => e - 1);
     }
   };
   const showDetailByDate = async (index: number) => {
     const data = await getSummaryUserActivities(
-      new Date(requestsInWeek[index].date.split("T")[0]),
+      new Date(requestsInWeek[index].date.split("T")[0])
     );
     setSummaryUserActivities(data);
   };
@@ -85,7 +85,7 @@ const Admin = () => {
     <Layout>
       <div>
         <BarChart
-          onItemClick={(event, column) => showDetailByDate(column.dataIndex)}
+          onItemClick={(_, column) => showDetailByDate(column.dataIndex)}
           dataset={requestsInWeek}
           xAxis={[{ scaleType: "band", data: DAY_IN_WEEK, label: "Date" }]}
           series={[{ dataKey: "requests", label: "Total messages" }]}
@@ -112,20 +112,20 @@ const Admin = () => {
                   gap: "30px",
                 }}
               >
-                <StyleButton
+                <StyledButton
                   size="small"
                   variant="contained"
                   text={"DASHBOARD"}
                   onClick={() => {
                     navigate("/");
                   }}
-                ></StyleButton>
-                <StyleButton
+                ></StyledButton>
+                <StyledButton
                   size="small"
                   variant="contained"
                   text={"LOG OUT"}
                   onClick={handleLogout}
-                ></StyleButton>
+                />
               </div>
               <TableContainer
                 sx={{ height: "300px", textAlign: "center" }}
@@ -169,7 +169,7 @@ const Admin = () => {
                     {summaryUserActivities
                       .slice(
                         currentPage * pageSize,
-                        currentPage * pageSize + pageSize,
+                        currentPage * pageSize + pageSize
                       )
                       .map((row, index) => (
                         <TableRow className="data-row" hover key={index}>
@@ -199,23 +199,23 @@ const Admin = () => {
                   marginTop: "20px",
                 }}
               >
-                <StyleButton
+                <StyledButton
                   size="small"
                   style={{ width: "20px" }}
                   variant="contained"
                   text={"<<"}
-                  onClick={handlePreviospage}
-                ></StyleButton>
+                  onClick={handlePreviousPage}
+                />
                 <b style={{ margin: "10px" }}>
                   Page {currentPage + 1} of{" "}
                   {Math.floor(summaryUserActivities.length / pageSize) + 1}
                 </b>
-                <StyleButton
+                <StyledButton
                   size="small"
                   variant="contained"
                   text={">>"}
-                  onClick={handleNextpage}
-                ></StyleButton>
+                  onClick={handleNextPage}
+                />
               </div>
             </Grid>
           </Grid>
