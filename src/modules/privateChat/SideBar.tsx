@@ -189,6 +189,10 @@ export const SideBar: FC = () => {
 
   const handleNavigateConversations = useCallback(
     (conversationId: string) => {
+      if (location.pathname === `${Path["Conversation"]}/${conversationId}`) {
+        return;
+      }
+
       setCurrentConversationId(conversationId);
       navigate(`${Path["Conversation"]}/${conversationId}`);
     },
