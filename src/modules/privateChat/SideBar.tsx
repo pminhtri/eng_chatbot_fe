@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useRef, useState } from "react";
 import {
   Box,
   IconButton,
@@ -141,6 +141,7 @@ export const SideBar: FC = () => {
   const [selectedConversationId, setSelectedConversationId] =
     useState<string>("");
   const [conversationName, setConversationName] = useState("");
+  const textInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     (async () => {
@@ -155,6 +156,22 @@ export const SideBar: FC = () => {
       handleToggleDrawer();
     }
   }, [isMobile]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        textInputRef.current &&
+        !textInputRef.current.contains(event.target as Node)
+      ) {
+        setIsRenaming(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [textInputRef]);
 
   const handleNewConversation = useCallback(() => {
     setCurrentConversationId(null);
@@ -249,17 +266,15 @@ export const SideBar: FC = () => {
               <ListItemText
                 primary={
                   <TextInput
-                    id="conversation-name"
                     type="text"
                     defaultValue={name}
                     onChange={(e) => setConversationName(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         handleRenameConversation(_id);
-                        e.target.addEventListener.bind(e.target, "blur");
                       }
                     }}
-                    onBlur={() => setIsRenaming(false)}
+                    inputRef={textInputRef}
                   />
                 }
               />
