@@ -7,11 +7,12 @@ import {
   ListItemButton,
   ListItemText,
   styled,
+  TextField,
   useMediaQuery,
 } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import MuiDrawer from "@mui/material/Drawer";
-import { Theme, CSSObject, useTheme } from "@mui/material/styles";
+import { Theme, CSSObject, useTheme, alpha } from "@mui/material/styles";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import {
   AddCircle,
@@ -25,6 +26,7 @@ import { Path } from "../../Router";
 import { useGlobalStore } from "../../store";
 import { color } from "../../constants";
 import { ActionDropdown } from "../../components/ui";
+import { common } from "@mui/material/colors";
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: 250,
@@ -72,6 +74,35 @@ const Drawer = styled(MuiDrawer, {
   ],
 }));
 
+const TextInput = styled(TextField)({
+  ".MuiInputBase-root": {
+    borderRadius: 8,
+    "&.Mui-disabled": {
+      backgroundColor: alpha(common.black, 0.1),
+    },
+  },
+  "& label.Mui-focused": {
+    color: color.ZINC[600],
+  },
+  "& .MuiOutlinedInput-root": {
+    "& fieldset": {
+      borderColor: `${color.ZINC[400]}`,
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: `${color.ZINC[400]}`,
+    },
+    "&:hover fieldset": {
+      borderColor: `${color.ZINC[400]}`,
+    },
+    "& input": {
+      padding: "0 8px",
+    },
+  },
+  ".MuiFormHelperText-root": {
+    marginLeft: 0,
+  },
+});
+
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -100,12 +131,16 @@ export const SideBar: FC = () => {
   } = usePrivateChatStore();
   const {
     value: { conversations },
-    actions: { fetchConversations },
+    actions: { fetchConversations, updateConversationName },
   } = useGlobalStore();
 
   const [hoveredConversationId, setHoveredConversationId] = useState<
     string | null
   >(null);
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [selectedConversationId, setSelectedConversationId] =
+    useState<string>("");
+  const [conversationName, setConversationName] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -126,12 +161,21 @@ export const SideBar: FC = () => {
     navigate(Path["Root"]);
   }, [navigate]);
 
+  const handleRenameConversation = useCallback(
+    async (conversationId: string) => {
+      setIsRenaming(true);
+      await updateConversationName(conversationId, conversationName);
+      setIsRenaming(false);
+    },
+    [conversationName]
+  );
+
   const handleNavigateConversations = useCallback(
     (conversationId: string) => {
       setCurrentConversationId(conversationId);
       navigate(`${Path["Conversation"]}/${conversationId}`);
     },
-    [navigate],
+    [navigate]
   );
 
   return (
@@ -201,77 +245,102 @@ export const SideBar: FC = () => {
             onMouseEnter={() => setHoveredConversationId(_id)}
             onMouseLeave={() => setHoveredConversationId(null)}
           >
-            <ListItemButton
-              disableTouchRipple
-              disableGutters
-              disableRipple
-              sx={{
-                display: "flex",
-                justifyContent: "flex-start",
-                alignItems: "center",
-                width: "100%",
-                backgroundColor: "transparent",
-                "&:hover": {
-                  backgroundColor: "transparent",
-                },
-              }}
-              onClick={() => handleNavigateConversations(_id)}
-            >
+            {isRenaming && selectedConversationId === _id ? (
               <ListItemText
-                primary={name}
-                sx={[
-                  isSideBarOpen
-                    ? {
-                        opacity: 1,
+                primary={
+                  <TextInput
+                    id="conversation-name"
+                    type="text"
+                    defaultValue={name}
+                    onChange={(e) => setConversationName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleRenameConversation(_id);
+                        e.target.addEventListener.bind(e.target, "blur");
                       }
-                    : {
-                        opacity: 0,
-                      },
-                ]}
+                    }}
+                    onBlur={() => setIsRenaming(false)}
+                  />
+                }
               />
-            </ListItemButton>
-            {(hoveredConversationId === _id ||
-              location.pathname === `${Path["Conversation"]}/${_id}`) && (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  alignItems: "center",
-                  color: color.ZINC[500],
-                  "&:hover": {
-                    cursor: "pointer",
-                  },
-                }}
-              >
-                <ActionDropdown
-                  actions={[
-                    {
-                      element: (
-                        <ActionMenuContainer>
-                          <EditOutlined />
-                          Rename
-                        </ActionMenuContainer>
-                      ),
-                      onClick: () => console.log("Rename", _id),
+            ) : (
+              <>
+                <ListItemButton
+                  disableTouchRipple
+                  disableGutters
+                  disableRipple
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-start",
+                    alignItems: "center",
+                    width: "100%",
+                    backgroundColor: "transparent",
+                    "&:hover": {
+                      backgroundColor: "transparent",
                     },
-                    {
-                      element: (
-                        <ActionMenuContainer
-                          style={{
-                            color: "red",
-                          }}
-                        >
-                          <DeleteForeverOutlined color="error" />
-                          Delete
-                        </ActionMenuContainer>
-                      ),
-                      onClick: () => console.log("Delete", _id),
-                    },
-                  ]}
+                  }}
+                  onClick={() => handleNavigateConversations(_id)}
                 >
-                  <MoreHorizOutlined />
-                </ActionDropdown>
-              </Box>
+                  <ListItemText
+                    primary={name}
+                    sx={[
+                      isSideBarOpen
+                        ? {
+                            opacity: 1,
+                          }
+                        : {
+                            opacity: 0,
+                          },
+                    ]}
+                  />
+                </ListItemButton>
+                {(hoveredConversationId === _id ||
+                  location.pathname === `${Path["Conversation"]}/${_id}`) && (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                      color: color.ZINC[500],
+                      "&:hover": {
+                        cursor: "pointer",
+                      },
+                    }}
+                  >
+                    <ActionDropdown
+                      actions={[
+                        {
+                          element: (
+                            <ActionMenuContainer>
+                              <EditOutlined />
+                              Rename
+                            </ActionMenuContainer>
+                          ),
+                          onClick: () => {
+                            setIsRenaming(true);
+                            setSelectedConversationId(_id);
+                          },
+                        },
+                        {
+                          element: (
+                            <ActionMenuContainer
+                              style={{
+                                color: "red",
+                              }}
+                            >
+                              <DeleteForeverOutlined color="error" />
+                              Delete
+                            </ActionMenuContainer>
+                          ),
+                          onClick: () => console.log("Delete", _id),
+                        },
+                      ]}
+                    >
+                      <MoreHorizOutlined />
+                    </ActionDropdown>
+                  </Box>
+                )}
+              </>
             )}
           </ListItem>
         ))}

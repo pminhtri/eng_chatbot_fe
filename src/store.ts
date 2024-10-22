@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 import { Theme } from "./enums";
 import { Conversation, UserDetails } from "./types";
-import { fetchCurrentUser, getConversations } from "./api";
+import { fetchCurrentUser, fetchConversation, updateConversationName } from "./api";
 
 type StateValue = {
   theme: Theme;
@@ -14,6 +14,7 @@ type Action = {
   setTheme: (theme: Theme) => void;
   fetchCurrentUser: () => Promise<void>;
   fetchConversations: () => Promise<Conversation[]>;
+  updateConversationName: (conversationId: string, name: string) => Promise<void>;
   clearStore: () => void;
 };
 
@@ -39,11 +40,23 @@ const useStore = create<Store>((set) => ({
       set((state) => ({ value: { ...state.value, currentUser } }));
     },
     fetchConversations: async () => {
-      const conversations = await getConversations();
+      const conversations = await fetchConversation();
 
       set((state) => ({ value: { ...state.value, conversations } }));
 
       return conversations;
+    },
+    updateConversationName: async (conversationId, name) => {
+      const updatedConversation = await updateConversationName(conversationId, name);
+
+      set((state) => ({
+        value: {
+          ...state.value,
+          conversations: state.value.conversations.map((conversation) =>
+            conversation._id === updatedConversation._id ? updatedConversation : conversation,
+          ),
+        },
+      }));
     },
     clearStore: () => set({ value: initialStateValue }),
   },
