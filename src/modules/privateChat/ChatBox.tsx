@@ -88,13 +88,16 @@ const BoxInput = styled(Box)(({ theme }) => ({
   width: "50%",
   paddingTop: "8px",
   paddingBottom: "16px",
+  [theme.breakpoints.down("laptop")]: {
+    width: "80%",
+  },
   [theme.breakpoints.down("tablet")]: {
     width: "100%",
     padding: "16px",
   },
 }));
 
-const Input = styled(TextField)(({ theme }) => ({
+const TextInput = styled(TextField)(({ theme }) => ({
   borderRadius: 25,
   height: "fit-content",
   backgroundColor: color.ZINC[200],
@@ -110,7 +113,7 @@ const Input = styled(TextField)(({ theme }) => ({
       border: "none",
     },
   },
-  [theme.breakpoints.down("tablet")]: {
+  [theme.breakpoints.down("laptop")]: {
     width: "100%",
   },
 }));
@@ -259,7 +262,7 @@ export const ChatBox: FC = () => {
 
   const handleChangeValue = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => setUserInput(e.target.value),
-    [],
+    []
   );
 
   const handleSendMessage = useCallback(() => {
@@ -379,7 +382,7 @@ export const ChatBox: FC = () => {
         )}
       </MessageGroup>
       <BoxInput>
-        <Input
+        <TextInput
           fullWidth
           variant="outlined"
           placeholder="Message Chat..."

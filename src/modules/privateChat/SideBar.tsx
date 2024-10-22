@@ -273,11 +273,9 @@ export const SideBar: FC = () => {
                     type="text"
                     defaultValue={name}
                     onChange={(e) => setConversationName(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleRenameConversation(_id);
-                      }
-                    }}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && handleRenameConversation(_id)
+                    }
                     inputRef={textInputRef}
                   />
                 }
@@ -303,6 +301,11 @@ export const SideBar: FC = () => {
                   <ListItemText
                     primary={name}
                     sx={[
+                      {
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      },
                       isSideBarOpen
                         ? {
                             opacity: 1,
