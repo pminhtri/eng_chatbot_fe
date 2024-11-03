@@ -20,8 +20,7 @@ import { Button, Typography } from "../../components/ui";
 import { Layout } from "../../layouts";
 import {
   color,
-  VALID_EMAIL_REGEX,
-  VALID_PASSWORD_REGEX,
+  VALID_EMAIL_REGEX
 } from "../../constants";
 import { formatRules } from "../../utils/validation";
 
@@ -157,15 +156,6 @@ const Login = () => {
         message: t("error.invalidEmail"),
       });
       showErrorMessage(t("error.invalidEmail"));
-      return;
-    }
-
-    if (VALID_PASSWORD_REGEX.test(password) === false) {
-      form.setError("password", {
-        type: "manual",
-        message: t("error.invalidPassword"),
-      });
-      showErrorMessage(t("error.invalidPassword"));
       return;
     }
 

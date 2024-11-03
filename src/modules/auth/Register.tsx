@@ -12,8 +12,7 @@ import { common } from "@mui/material/colors";
 import { Button, Typography } from "../../components/ui";
 import {
   color,
-  VALID_EMAIL_REGEX,
-  VALID_PASSWORD_REGEX,
+  VALID_EMAIL_REGEX
 } from "../../constants";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -168,15 +167,6 @@ const Register: FC = () => {
           message: t("error.passwordNotMatch"),
         });
         showErrorMessage(t("error.passwordNotMatch"));
-        return;
-      }
-
-      if (VALID_PASSWORD_REGEX.test(password) === false) {
-        form.setError("password", {
-          type: "manual",
-          message: t("error.invalidPassword"),
-        });
-        showErrorMessage(t("error.invalidPassword"));
         return;
       }
 
