@@ -6,14 +6,11 @@ import {
   styled,
   TextField,
 } from "@mui/material";
-import { FC, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import { common } from "@mui/material/colors";
 
 import { Button, Typography } from "../../components/ui";
-import {
-  color,
-  VALID_EMAIL_REGEX
-} from "../../constants";
+import { color, VALID_EMAIL_REGEX } from "../../constants";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Controller, FormProvider, useForm } from "react-hook-form";
@@ -127,7 +124,7 @@ const Register: FC = () => {
   const {
     actions: { register },
   } = useAuthStore();
-  const { showSuccessMessage, showErrorMessage } = useAlert();
+  const { showSuccessMessage } = useAlert();
   const { handleError } = useErrorHandler();
 
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -145,10 +142,16 @@ const Register: FC = () => {
     },
   });
 
-  const { control, getFieldState } = form;
-  const { error: emailError } = getFieldState("email");
-  const { error: passwordError } = getFieldState("password");
-  const { error: confirmPasswordError } = getFieldState("confirmPassword");
+  const { control } = form;
+  const changedField = Object.keys(form.formState.dirtyFields).pop();
+
+  const getErrorMessage = useCallback(
+    (fieldName: keyof RegisterForm) => {
+      const fieldState = form.getFieldState(fieldName);
+      return errorMessage || t(`${fieldState.error?.message || ""}`);
+    },
+    [changedField, errorMessage]
+  );
 
   const handleSubmit = form.handleSubmit(
     async ({ email, password, confirmPassword }) => {
@@ -157,7 +160,6 @@ const Register: FC = () => {
           type: "manual",
           message: t("error.invalidEmail"),
         });
-        showErrorMessage(t("error.invalidEmail"));
         return;
       }
 
@@ -166,7 +168,6 @@ const Register: FC = () => {
           type: "manual",
           message: t("error.passwordNotMatch"),
         });
-        showErrorMessage(t("error.passwordNotMatch"));
         return;
       }
 
@@ -191,7 +192,7 @@ const Register: FC = () => {
         handleError(appError);
         setExecuting(false);
       }
-    },
+    }
   );
 
   useEffect(() => {
@@ -225,8 +226,10 @@ const Register: FC = () => {
                       variant="outlined"
                       size="small"
                       fullWidth
-                      helperText={errorMessage}
-                      error={!!emailError}
+                      helperText={
+                        errorMessage || t(`${getErrorMessage("email")}`)
+                      }
+                      error={!!form.formState.errors.email}
                       sx={{
                         "& .MuiInputBase-root": {
                           color: "black",
@@ -252,8 +255,10 @@ const Register: FC = () => {
                       variant="outlined"
                       size="small"
                       fullWidth
-                      helperText={errorMessage}
-                      error={!!passwordError}
+                      helperText={
+                        errorMessage || t(`${getErrorMessage("password")}`)
+                      }
+                      error={!!form.formState.errors.password}
                       sx={{
                         "& .MuiInputBase-root": {
                           color: "black",
@@ -303,8 +308,11 @@ const Register: FC = () => {
                       variant="outlined"
                       size="small"
                       fullWidth
-                      helperText={errorMessage}
-                      error={!!confirmPasswordError}
+                      helperText={
+                        errorMessage ||
+                        t(`${getErrorMessage("confirmPassword")}`)
+                      }
+                      error={!!form.formState.errors.confirmPassword}
                       sx={{
                         "& .MuiInputBase-root": {
                           color: "black",

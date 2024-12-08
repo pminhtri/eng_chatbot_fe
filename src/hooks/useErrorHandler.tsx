@@ -18,14 +18,7 @@ export const useErrorHandler = (): ReturnType => {
       if (error.code === ErrorCode.UNAUTHORIZED) {
         return navigate(Path["Login"], { replace: true });
       }
-
-      if (error.code === ErrorCode.RESOURCE_NOT_FOUND) {
-        return navigate(Path["PageNotFound"], {
-          replace: true,
-          state: { prevRoute: location },
-        });
-      }
-
+      
       if (error.code === ErrorCode.PERMISSION_DENIED) {
         return navigate(Path["PermissionDenied"], {
           replace: true,

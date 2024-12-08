@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { Controller, FormProvider, useForm } from "react-hook-form";
@@ -18,10 +18,7 @@ import { useAlert, useErrorHandler } from "../../hooks";
 import { AppError } from "../../types";
 import { Button, Typography } from "../../components/ui";
 import { Layout } from "../../layouts";
-import {
-  color,
-  VALID_EMAIL_REGEX
-} from "../../constants";
+import { color, VALID_EMAIL_REGEX } from "../../constants";
 import { formatRules } from "../../utils/validation";
 
 import { ErrorCode } from "../../enums";
@@ -44,7 +41,6 @@ const LoginContainer = styled(Grid2)({
 const LoginForm = styled("form")({
   display: "flex",
   flexDirection: "column",
-  height: "300px",
   borderRadius: 8,
   border: `1px solid ${color.ZINC[300]}`,
   boxShadow: "0px 2px 6px 0px rgba(97, 110, 124, 0.20)",
@@ -137,9 +133,7 @@ const Login = () => {
     },
   });
 
-  const { control, getFieldState } = form;
-  const { error: emailError } = getFieldState("email");
-  const { error: passwordError } = getFieldState("password");
+  const { control } = form;
 
   const { showErrorMessage } = useAlert();
   const { handleError } = useErrorHandler();
@@ -148,6 +142,13 @@ const Login = () => {
   const [executing, setExecuting] = useState<boolean>(false);
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
+
+  const changedField = Object.keys(form.formState.dirtyFields).pop();
+
+  const getErrorMessage = useCallback((fieldName: keyof LoginForm) => {
+    const fieldState = form.getFieldState(fieldName);
+    return errorMessage || t(`${fieldState.error?.message || ""}`);
+  }, [changedField, errorMessage]);
 
   const handleLogin = form.handleSubmit(async ({ email, password }) => {
     if (VALID_EMAIL_REGEX.test(email) === false) {
@@ -203,8 +204,10 @@ const Login = () => {
                       variant="outlined"
                       size="small"
                       fullWidth
-                      helperText={errorMessage}
-                      error={!!emailError}
+                      helperText={
+                        errorMessage || t(`${getErrorMessage("email")}`)
+                      }
+                      error={!!form.getFieldState("email").error}
                       sx={{
                         "& .MuiInputBase-root": {
                           color: "black",
@@ -230,8 +233,10 @@ const Login = () => {
                       variant="outlined"
                       size="small"
                       fullWidth
-                      helperText={errorMessage}
-                      error={!!passwordError}
+                      helperText={
+                        errorMessage || t(`${getErrorMessage("password")}`)
+                      }
+                      error={!!form.getFieldState("password").error}
                       sx={{
                         "& .MuiInputBase-root": {
                           color: "black",

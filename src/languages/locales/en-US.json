@@ -20,5 +20,6 @@
   "error.invalidEmail": "Invalid email",
   "error.invalidPassword": "Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, one number and one special character",
   "error.passwordNotMatch": "Password does not match",
-  "defaultContent": "Welcome to English Chatbot!"
+  "defaultContent": "Welcome to English Chatbot!",
+  "validation.required": "Required field"
 }
