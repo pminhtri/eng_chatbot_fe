@@ -10,6 +10,7 @@ import {
   TextField,
   useMediaQuery,
 } from "@mui/material";
+import { common } from "@mui/material/colors";
 import { useLocation, useNavigate } from "react-router-dom";
 import MuiDrawer from "@mui/material/Drawer";
 import { Theme, CSSObject, useTheme, alpha } from "@mui/material/styles";
@@ -26,7 +27,6 @@ import { Path } from "../../Router";
 import { useGlobalStore } from "../../store";
 import { color } from "../../constants";
 import { ActionDropdown } from "../../components/ui";
-import { common } from "@mui/material/colors";
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: 250,
@@ -131,7 +131,7 @@ export const SideBar: FC = () => {
   } = usePrivateChatStore();
   const {
     value: { conversations },
-    actions: { fetchConversations, updateConversationName },
+    actions: { fetchConversations, updateConversationName, deleteConversation },
   } = useGlobalStore();
 
   const [hoveredConversationId, setHoveredConversationId] = useState<
@@ -185,6 +185,13 @@ export const SideBar: FC = () => {
       setIsRenaming(false);
     },
     [conversationName]
+  );
+
+  const handleDeleteConversation = useCallback(
+    async (conversationId: string) => {
+      await deleteConversation(conversationId);
+    },
+    []
   );
 
   const handleNavigateConversations = useCallback(
@@ -354,7 +361,10 @@ export const SideBar: FC = () => {
                               Delete
                             </ActionMenuContainer>
                           ),
-                          onClick: () => console.log("Delete", _id),
+                          onClick: async () => {
+                            await handleDeleteConversation(_id);
+                            handleNewConversation();
+                          },
                         },
                       ]}
                     >

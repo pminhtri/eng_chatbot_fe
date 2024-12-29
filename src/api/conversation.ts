@@ -16,3 +16,7 @@ export const updateConversationName = async (
 
   return data.conversation;
 }
+
+export const deleteConversation = async (conversationId: string): Promise<void> => {
+  await axiosClient.patch(`/conversations/delete/${conversationId}`);
+}

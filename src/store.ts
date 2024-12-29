@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 import { Theme } from "./enums";
 import { Conversation, UserDetails } from "./types";
-import { fetchCurrentUser, fetchConversation, updateConversationName } from "./api";
+import { fetchCurrentUser, fetchConversation, updateConversationName, deleteConversation } from "./api";
 
 type StateValue = {
   theme: Theme;
@@ -15,6 +15,7 @@ type Action = {
   fetchCurrentUser: () => Promise<void>;
   fetchConversations: () => Promise<Conversation[]>;
   updateConversationName: (conversationId: string, name: string) => Promise<void>;
+  deleteConversation: (conversationId: string) => Promise<void>;
   clearStore: () => void;
 };
 
@@ -54,6 +55,18 @@ const useStore = create<Store>((set) => ({
           ...state.value,
           conversations: state.value.conversations.map((conversation) =>
             conversation._id === updatedConversation._id ? updatedConversation : conversation,
+          ),
+        },
+      }));
+    },
+    deleteConversation: async (conversationId) => {
+      await deleteConversation(conversationId);
+
+      set((state) => ({
+        value: {
+          ...state.value,
+          conversations: state.value.conversations.filter(
+            (conversation) => conversation._id !== conversationId,
           ),
         },
       }));
