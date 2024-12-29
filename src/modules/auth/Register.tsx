@@ -38,8 +38,9 @@ const RegisterContainer = styled(Grid2)({
   alignItems: "center",
 });
 
-const RegisterForm = styled("form")({
+const RegisterForm = styled("form")(({theme}) => ({
   display: "flex",
+  width: "400px",
   flexDirection: "column",
   borderRadius: 8,
   border: "1px solid #e0e0e0",
@@ -51,19 +52,8 @@ const RegisterForm = styled("form")({
   "& .MuiButton-root": {
     marginTop: 10,
   },
-});
-
-const RegisterContent = styled(Box)(({ theme }) => ({
-  [theme.breakpoints.up("laptop")]: {
-    width: "400px",
-  },
-  [theme.breakpoints.between("tablet", "laptop")]: {
-    width: "400px",
-    margin: "auto",
-  },
   [theme.breakpoints.down("mobile")]: {
-    width: "250px",
-    margin: "auto",
+    width: "80%",
   },
 }));
 
@@ -212,7 +202,7 @@ const Register: FC = () => {
         <RegisterForm onSubmit={handleSubmit}>
           <FormProvider {...form}>
             <Title type="heading-3">{t("register")}</Title>
-            <RegisterContent>
+            <Box>
               <InputGroup>
                 <Controller
                   name="email"
@@ -379,7 +369,7 @@ const Register: FC = () => {
                   />
                 </Link>
               </Box>
-            </RegisterContent>
+            </Box>
           </FormProvider>
         </RegisterForm>
       </RegisterContainer>

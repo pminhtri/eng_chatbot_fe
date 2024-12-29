@@ -38,8 +38,9 @@ const LoginContainer = styled(Grid2)({
   alignItems: "center",
 });
 
-const LoginForm = styled("form")({
+const LoginForm = styled("form")(({ theme }) => ({
   display: "flex",
+  width: "400px",
   flexDirection: "column",
   borderRadius: 8,
   border: `1px solid ${color.ZINC[300]}`,
@@ -51,19 +52,8 @@ const LoginForm = styled("form")({
   "& .MuiButton-root": {
     marginTop: 10,
   },
-});
-
-const LoginContent = styled(Box)(({ theme }) => ({
-  [theme.breakpoints.up("laptop")]: {
-    width: "400px",
-  },
-  [theme.breakpoints.between("tablet", "laptop")]: {
-    width: "400px",
-    margin: "auto",
-  },
   [theme.breakpoints.down("mobile")]: {
-    width: "250px",
-    margin: "auto",
+    width: "80%",
   },
 }));
 
@@ -145,10 +135,13 @@ const Login = () => {
 
   const changedField = Object.keys(form.formState.dirtyFields).pop();
 
-  const getErrorMessage = useCallback((fieldName: keyof LoginForm) => {
-    const fieldState = form.getFieldState(fieldName);
-    return errorMessage || t(`${fieldState.error?.message || ""}`);
-  }, [changedField, errorMessage]);
+  const getErrorMessage = useCallback(
+    (fieldName: keyof LoginForm) => {
+      const fieldState = form.getFieldState(fieldName);
+      return errorMessage || t(`${fieldState.error?.message || ""}`);
+    },
+    [changedField, errorMessage]
+  );
 
   const handleLogin = form.handleSubmit(async ({ email, password }) => {
     if (VALID_EMAIL_REGEX.test(email) === false) {
@@ -190,118 +183,116 @@ const Login = () => {
         <LoginForm onSubmit={handleLogin}>
           <FormProvider {...form}>
             <Title type="heading-3">{t("mainTitle")}</Title>
-            <LoginContent>
-              <InputGroup>
-                <Controller
-                  name="email"
-                  control={control}
-                  rules={formatRules({ required: true, email: true })}
-                  render={({ field }) => (
-                    <TextInput
-                      {...field}
-                      label={t("email")}
-                      required
-                      variant="outlined"
-                      size="small"
-                      fullWidth
-                      helperText={
-                        errorMessage || t(`${getErrorMessage("email")}`)
-                      }
-                      error={!!form.getFieldState("email").error}
-                      sx={{
-                        "& .MuiInputBase-root": {
+            <InputGroup>
+              <Controller
+                name="email"
+                control={control}
+                rules={formatRules({ required: true, email: true })}
+                render={({ field }) => (
+                  <TextInput
+                    {...field}
+                    label={t("email")}
+                    required
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    helperText={
+                      errorMessage || t(`${getErrorMessage("email")}`)
+                    }
+                    error={!!form.getFieldState("email").error}
+                    sx={{
+                      "& .MuiInputBase-root": {
+                        color: "black",
+                        "&:focus": {
                           color: "black",
-                          "&:focus": {
-                            color: "black",
-                          },
                         },
-                      }}
-                    />
-                  )}
-                />
-              </InputGroup>
-              <InputGroup>
-                <Controller
-                  name="password"
-                  control={control}
-                  rules={formatRules({ required: true })}
-                  render={({ field }) => (
-                    <TextInput
-                      {...field}
-                      label={t("password")}
-                      required
-                      variant="outlined"
-                      size="small"
-                      fullWidth
-                      helperText={
-                        errorMessage || t(`${getErrorMessage("password")}`)
-                      }
-                      error={!!form.getFieldState("password").error}
-                      sx={{
-                        "& .MuiInputBase-root": {
-                          color: "black",
-                          "&:focus": {
-                            color: "black",
-                          },
-                        },
-
-                        '& input[type="password"]::-ms-reveal': {
-                          display: "none",
-                        },
-                        '& input[type="password"]::-ms-clear': {
-                          display: "none",
-                        },
-                      }}
-                      slotProps={{
-                        input: {
-                          type: showPassword ? "text" : "password",
-                          endAdornment: (
-                            <IconButton
-                              onClick={() => setShowPassword(!showPassword)}
-                              edge="end"
-                            >
-                              {showPassword ? (
-                                <VisibilityOutlined />
-                              ) : (
-                                <VisibilityOffOutlined />
-                              )}
-                            </IconButton>
-                          ),
-                        },
-                      }}
-                    />
-                  )}
-                />
-              </InputGroup>
-              <SubmitButton
-                size="large"
-                type="submit"
-                variant="contained"
-                fullWidth
-                disabled={executing}
-                text={t("login")}
+                      },
+                    }}
+                  />
+                )}
               />
-              <Box
-                display="flex"
-                flexGrow={1}
-                marginTop={2}
-                justifyContent="center"
-                alignItems="center"
-              >
+            </InputGroup>
+            <InputGroup>
+              <Controller
+                name="password"
+                control={control}
+                rules={formatRules({ required: true })}
+                render={({ field }) => (
+                  <TextInput
+                    {...field}
+                    label={t("password")}
+                    required
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    helperText={
+                      errorMessage || t(`${getErrorMessage("password")}`)
+                    }
+                    error={!!form.getFieldState("password").error}
+                    sx={{
+                      "& .MuiInputBase-root": {
+                        color: "black",
+                        "&:focus": {
+                          color: "black",
+                        },
+                      },
+
+                      '& input[type="password"]::-ms-reveal': {
+                        display: "none",
+                      },
+                      '& input[type="password"]::-ms-clear': {
+                        display: "none",
+                      },
+                    }}
+                    slotProps={{
+                      input: {
+                        type: showPassword ? "text" : "password",
+                        endAdornment: (
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge="end"
+                          >
+                            {showPassword ? (
+                              <VisibilityOutlined />
+                            ) : (
+                              <VisibilityOffOutlined />
+                            )}
+                          </IconButton>
+                        ),
+                      },
+                    }}
+                  />
+                )}
+              />
+            </InputGroup>
+            <SubmitButton
+              size="large"
+              type="submit"
+              variant="contained"
+              fullWidth
+              disabled={executing}
+              text={t("login")}
+            />
+            <Box
+              display="flex"
+              flexGrow={1}
+              marginTop={2}
+              justifyContent="center"
+              alignItems="center"
+            >
+              <Typography
+                type="body-1"
+                color="textSecondary"
+                translationKey="registerQuestion"
+              />
+              <Link to={Path["Register"]} style={{ marginLeft: 4 }}>
                 <Typography
                   type="body-1"
-                  color="textSecondary"
-                  translationKey="registerQuestion"
+                  color="primary"
+                  translationKey="register"
                 />
-                <Link to={Path["Register"]} style={{ marginLeft: 4 }}>
-                  <Typography
-                    type="body-1"
-                    color="primary"
-                    translationKey="register"
-                  />
-                </Link>
-              </Box>
-            </LoginContent>
+              </Link>
+            </Box>
           </FormProvider>
         </LoginForm>
       </LoginContainer>
