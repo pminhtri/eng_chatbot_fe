@@ -10,6 +10,7 @@ import { useParams } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import Markdown from "react-markdown";
 import {
+  Avatar,
   Box,
   IconButton,
   InputAdornment,
@@ -65,6 +66,7 @@ const renderSkeletonResponse = () => (
       },
     })}
   >
+    <Avatar sx={{ width: 28, height: 28 }} />
     <Box
       display="block"
       width="70%"
@@ -328,6 +330,7 @@ export const ChatBox: FC = () => {
                 },
               })}
             >
+              {isBot && <Avatar sx={{ width: 28, height: 28 }} />}
               <Box
                 display="block"
                 width="fit-content"

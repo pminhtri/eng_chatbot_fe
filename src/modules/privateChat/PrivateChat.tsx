@@ -7,6 +7,7 @@ import {
   PersonOutlineRounded,
   SettingsOutlined,
 } from "@mui/icons-material";
+import { useTranslation } from "react-i18next";
 import { Outlet, useNavigate } from "react-router-dom";
 import SideBar from "./SideBar";
 import { Header, Layout } from "../../layouts";
@@ -32,6 +33,7 @@ const ActionMenuContainer = styled(Box)(() => ({
 }));
 
 export const PrivateChat: FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const {
     value: { currentConversationId, isSideBarOpen },
@@ -66,7 +68,7 @@ export const PrivateChat: FC = () => {
                   element: (
                     <ActionMenuContainer>
                       <PersonOutlineRounded />
-                      Profile
+                      {t("profile")}
                     </ActionMenuContainer>
                   ),
                   onClick: () => console.log("Profile"),
@@ -77,7 +79,7 @@ export const PrivateChat: FC = () => {
                         element: (
                           <ActionMenuContainer>
                             <AdminPanelSettingsOutlined />
-                            Admin
+                            {t("admin")}
                           </ActionMenuContainer>
                         ),
                         onClick: () => navigate(Path["Admin"]),
@@ -88,7 +90,7 @@ export const PrivateChat: FC = () => {
                   element: (
                     <ActionMenuContainer>
                       <SettingsOutlined />
-                      Settings
+                      {t("settings")}
                     </ActionMenuContainer>
                   ),
                   onClick: () => console.log("Settings"),
@@ -97,7 +99,7 @@ export const PrivateChat: FC = () => {
                   element: (
                     <ActionMenuContainer>
                       <LogoutRounded />
-                      Logout
+                      {t("logout")}
                     </ActionMenuContainer>
                   ),
                   dividerTop: true,

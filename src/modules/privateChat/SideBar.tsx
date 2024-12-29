@@ -18,7 +18,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import MuiDrawer from "@mui/material/Drawer";
 import { Theme, CSSObject, useTheme, alpha } from "@mui/material/styles";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import {
   AddCircle,
   DeleteForeverOutlined,
@@ -247,7 +246,6 @@ export const SideBar: FC = () => {
       <DrawerHeader>
         <IconButton onClick={handleToggleDrawer}>
           {isSideBarOpen && <ChevronLeftIcon />}
-          {!isSideBarOpen && <ChevronRightIcon />}
         </IconButton>
       </DrawerHeader>
       <div>
