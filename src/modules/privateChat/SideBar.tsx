@@ -8,13 +8,17 @@ import {
   ListItemText,
   styled,
   TextField,
+  Tooltip,
+  TooltipProps,
   useMediaQuery,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import { common } from "@mui/material/colors";
 import { useLocation, useNavigate } from "react-router-dom";
 import MuiDrawer from "@mui/material/Drawer";
 import { Theme, CSSObject, useTheme, alpha } from "@mui/material/styles";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import {
   AddCircle,
   DeleteForeverOutlined,
@@ -26,10 +30,10 @@ import { usePrivateChatStore } from "./store";
 import { Path } from "../../Router";
 import { useGlobalStore } from "../../store";
 import { color } from "../../constants";
-import { ActionDropdown } from "../../components/ui";
+import { ActionDropdown, Typography } from "../../components/ui";
 
 const openedMixin = (theme: Theme): CSSObject => ({
-  width: 250,
+  width: 260,
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.enteringScreen,
@@ -51,27 +55,20 @@ const closedMixin = (theme: Theme): CSSObject => ({
 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
-})(({ theme }) => ({
-  width: 250,
+})<{
+  open?: boolean;
+}>(({ theme, open }) => ({
   flexShrink: 0,
   whiteSpace: "nowrap",
   boxSizing: "border-box",
-  variants: [
-    {
-      props: ({ open }) => open,
-      style: {
-        ...openedMixin(theme),
-        "& .MuiDrawer-paper": openedMixin(theme),
-      },
-    },
-    {
-      props: ({ open }) => !open,
-      style: {
-        ...closedMixin(theme),
-        "& .MuiDrawer-paper": closedMixin(theme),
-      },
-    },
-  ],
+  ...(open && {
+    ...openedMixin(theme),
+    "& .MuiDrawer-paper": openedMixin(theme),
+  }),
+  ...(!open && {
+    ...closedMixin(theme),
+    "& .MuiDrawer-paper": closedMixin(theme),
+  }),
 }));
 
 const TextInput = styled(TextField)({
@@ -119,12 +116,43 @@ const ActionMenuContainer = styled(Box)(() => ({
   flexDirection: "row",
   justifyContent: "flex-start",
 }));
+const CustomTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip
+    {...props}
+    classes={{ popper: className }}
+    PopperProps={{
+      modifiers: [
+        {
+          name: "offset",
+          options: {
+            offset: [0, -10],
+          },
+        },
+        {
+          name: "preventOverflow",
+          options: {
+            boundary: "viewport",
+          },
+        },
+      ],
+    }}
+  />
+))(() => ({
+  "& .MuiTooltip-tooltip": {
+    backgroundColor: color.DEFAULT_SECONDARY_COLOR,
+    color: color.DEFAULT_TEXT_COLOR,
+    border:`1px solid ${color.ZINC[500]}`,
+    boxShadow: "0px 2px 6px 0px rgba(97, 110, 124, 0.20)",
+    fontSize: "0.75rem",
+  },
+}));
 
 export const SideBar: FC = () => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
-  const isMobile = useMediaQuery(theme.breakpoints.down("tablet"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("mobile"));
   const {
     value: { isSideBarOpen },
     actions: { handleToggleDrawer, setCurrentConversationId },
@@ -209,6 +237,7 @@ export const SideBar: FC = () => {
   return (
     <Drawer
       variant={isMobile ? "temporary" : "permanent"}
+      anchor="left"
       open={isSideBarOpen}
       onClose={handleToggleDrawer}
       ModalProps={{
@@ -218,6 +247,7 @@ export const SideBar: FC = () => {
       <DrawerHeader>
         <IconButton onClick={handleToggleDrawer}>
           {isSideBarOpen && <ChevronLeftIcon />}
+          {!isSideBarOpen && <ChevronRightIcon />}
         </IconButton>
       </DrawerHeader>
       <div>
@@ -236,7 +266,9 @@ export const SideBar: FC = () => {
           onClick={handleNewConversation}
         >
           <AddCircle />
-          New Conversation
+          <Typography type="body-1" color="textPrimary">
+            {t("newConversation")}
+          </Typography>
         </Box>
       </div>
       <List
@@ -305,23 +337,25 @@ export const SideBar: FC = () => {
                   }}
                   onClick={() => handleNavigateConversations(_id)}
                 >
-                  <ListItemText
-                    primary={name}
-                    sx={[
-                      {
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      },
-                      isSideBarOpen
-                        ? {
-                            opacity: 1,
-                          }
-                        : {
-                            opacity: 0,
-                          },
-                    ]}
-                  />
+                  <CustomTooltip title={name} placement="top-start">
+                    <ListItemText
+                      primary={name}
+                      sx={[
+                        {
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        },
+                        isSideBarOpen
+                          ? {
+                              opacity: 1,
+                            }
+                          : {
+                              opacity: 0,
+                            },
+                      ]}
+                    />
+                  </CustomTooltip>
                 </ListItemButton>
                 {(hoveredConversationId === _id ||
                   location.pathname === `${Path["Conversation"]}/${_id}`) && (
@@ -342,7 +376,7 @@ export const SideBar: FC = () => {
                           element: (
                             <ActionMenuContainer>
                               <EditOutlined />
-                              Rename
+                              {t("rename")}
                             </ActionMenuContainer>
                           ),
                           onClick: () => {
@@ -358,7 +392,7 @@ export const SideBar: FC = () => {
                               }}
                             >
                               <DeleteForeverOutlined color="error" />
-                              Delete
+                              {t("delete")}
                             </ActionMenuContainer>
                           ),
                           onClick: async () => {

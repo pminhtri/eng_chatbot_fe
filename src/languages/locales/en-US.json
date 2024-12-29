@@ -15,6 +15,7 @@
   "loginQuestion": "Already have an account?",
   "rename": "Rename",
   "delete": "Delete",
+  "newConversation": "New conversation",
   "error.login": "Login failed",
   "error.pageNotFound": "Page not found",
   "error.somethingWentWrong": "Something went wrong",
