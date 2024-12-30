@@ -45,7 +45,7 @@ const DashBoard = () => {
       sx={{
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
+        alignItems: "start",
         padding: "3rem",
         gap: "20px",
       }}
@@ -62,17 +62,7 @@ const DashBoard = () => {
             onItemClick={showDetailByDate}
           />
         </Box>
-        <Box sx={{ padding: "20px 0", ...boxStyle }}>
-          <Box sx={spreadStyle}>
-            <span style={{ fontWeight: "bold", fontSize: "20px" }}>
-              Monitoring activities chart
-            </span>
-          </Box>
-          <BarChartCustom
-            requests={requestsInWeek}
-            onItemClick={showDetailByDate}
-          />
-        </Box>
+        
         {/* <Box sx={{padding: "20px", ...boxStyle}}>
                     <span style={{color:"#D3D5D9"}}>Total user:</span>
                     <h1>290</h1>
@@ -80,7 +70,7 @@ const DashBoard = () => {
       </Stack>
       <Box sx={{ padding: "20px 0", ...boxStyle }}>
         <Box sx={spreadStyle}>
-          <span style={{ fontWeight: "bold", fontSize: "20px" }}>Detail</span>
+          <span style={{ fontWeight: "bold", fontSize: "20px" }}>Detail Table</span>
         </Box>
         <TableAdmin data={summaryUserActivities} />
       </Box>
