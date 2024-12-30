@@ -20,6 +20,8 @@
   "settings": "Settings",
   "admin": "Admin",
   "newConversation": "New conversation",
+  "newChat": "New chat",
+  "searchChat": "Search chat",
   "error.login": "Login failed",
   "error.pageNotFound": "Page not found",
   "error.somethingWentWrong": "Something went wrong",

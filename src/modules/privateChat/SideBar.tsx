@@ -19,10 +19,11 @@ import MuiDrawer from "@mui/material/Drawer";
 import { Theme, CSSObject, useTheme, alpha } from "@mui/material/styles";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import {
-  AddCircle,
   DeleteForeverOutlined,
   EditOutlined,
   MoreHorizOutlined,
+  AddCircleOutline,
+  SearchOutlined,
 } from "@mui/icons-material";
 
 import { usePrivateChatStore } from "./store";
@@ -60,6 +61,9 @@ const Drawer = styled(MuiDrawer, {
   flexShrink: 0,
   whiteSpace: "nowrap",
   boxSizing: "border-box",
+  flex: 1,
+  paddingTop: theme.spacing(1),
+  paddingBottom: theme.spacing(1),
   ...(open && {
     ...openedMixin(theme),
     "& .MuiDrawer-paper": openedMixin(theme),
@@ -101,9 +105,19 @@ const TextInput = styled(TextField)({
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
-  alignItems: "center",
-  justifyContent: "flex-end",
-  padding: theme.spacing(0, 1),
+  width: "100%",
+  flexDirection: "column",
+  alignItems: "flex-end",
+  justifyContent: "center",
+  paddingTop: theme.spacing(1),
+  paddingBottom: theme.spacing(1),
+  paddingLeft: theme.spacing(1),
+  paddingRight: theme.spacing(1),
+  position: "sticky",
+  gap: 2,
+  top: 0,
+  zIndex: 1,
+  backgroundColor: color.ZINC[100],
   ...theme.mixins.toolbar,
 }));
 
@@ -140,7 +154,7 @@ const CustomTooltip = styled(({ className, ...props }: TooltipProps) => (
   "& .MuiTooltip-tooltip": {
     backgroundColor: color.DEFAULT_SECONDARY_COLOR,
     color: color.DEFAULT_TEXT_COLOR,
-    border:`1px solid ${color.ZINC[500]}`,
+    border: `1px solid ${color.ZINC[500]}`,
     boxShadow: "0px 2px 6px 0px rgba(97, 110, 124, 0.20)",
     fontSize: "0.75rem",
   },
@@ -244,18 +258,29 @@ export const SideBar: FC = () => {
       }}
     >
       <DrawerHeader>
-        <IconButton onClick={handleToggleDrawer}>
-          {isSideBarOpen && <ChevronLeftIcon />}
-        </IconButton>
-      </DrawerHeader>
-      <div>
         <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          width="100%"
+        >
+          <IconButton onClick={handleToggleDrawer}>
+            <ChevronLeftIcon />
+          </IconButton>
+          <CustomTooltip title={t("searchChat")}>
+            <IconButton onClick={() => alert("Under Development")}>
+              <SearchOutlined />
+            </IconButton>
+          </CustomTooltip>
+        </Box>
+        <Box
+          py={1}
           sx={{
             display: "flex",
+            width: "100%",
             justifyContent: "center",
             alignItems: "center",
             gap: 2,
-            height: 40,
             backgroundColor: color.ZINC[100],
             "&:hover": {
               cursor: "pointer",
@@ -263,15 +288,19 @@ export const SideBar: FC = () => {
           }}
           onClick={handleNewConversation}
         >
-          <AddCircle />
-          <Typography type="body-1" color="textPrimary">
-            {t("newConversation")}
-          </Typography>
+          <Box display="flex" alignItems="center" gap={1}>
+            <AddCircleOutline fontSize="small" />
+            <Typography type="body-1" color="textPrimary">
+              {t("newChat")}
+            </Typography>
+          </Box>
         </Box>
-      </div>
+      </DrawerHeader>
       <List
         sx={{
           px: 1,
+          maxHeight: "calc(100vh - 100px)",
+          overflowY: "auto",
         }}
       >
         {conversations?.map(({ name, _id }) => (
