@@ -13,7 +13,7 @@ export const BarChartCustom: FC<BarCharProp> = (props) => {
       leftAxis={null}
       series={[{ dataKey: "requests" }]}
       borderRadius={10}
-      width={700}
+      width={550}
       height={400}
       barLabel={"value"}
     />
