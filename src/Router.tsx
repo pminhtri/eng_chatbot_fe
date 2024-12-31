@@ -16,13 +16,20 @@ import {
   PrivateChat,
 } from "./modules";
 import { Role } from "./enums";
+import DashBoard from "./modules/admin/DashBoard";
 
 export const Path = {
   Root: "/",
   Public: "/public",
   Login: "/auth/login",
   Register: "/auth/register",
-  Admin: "/admin",
+  Admin: {
+    index:"/admin",
+    children: {
+      dashBoard: "/admin/dashboard",
+      questions: "/admin/questions"
+    }
+  },
   PageNotFound: "/page-not-found",
   PermissionDenied: "/permission-denied",
   Conversation: "/conversation",
@@ -162,7 +169,7 @@ function Router() {
         }
       />
       <Route
-        path={Path["Admin"]}
+        path={Path["Admin"].index}
         element={
           <AuthenticatedRoute>
             <AuthorizedRoute>
@@ -170,7 +177,11 @@ function Router() {
             </AuthorizedRoute>
           </AuthenticatedRoute>
         }
-      />
+      >
+        <Route index element={<DashBoard/>}/>
+        <Route path={Path.Admin.children.dashBoard} element={<DashBoard/>}/>
+        <Route path={Path.Admin.children.questions} element={<div>Coming soon</div>}/>
+      </Route>
       <Route
         path={Path["Public"]}
         element={

@@ -1,4 +1,4 @@
-import { RequestsInWeek, SummaryUserActivities } from "../types/log";
+import { RequestsInWeek, SummaryUserActivities } from "../types/admin";
 import { axiosClient } from "../utils";
 
 export const getSummaryUserActivities = async (
