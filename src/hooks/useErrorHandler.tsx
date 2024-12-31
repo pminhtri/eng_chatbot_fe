@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAlert } from "./useAlert";
 import { AppError } from "../types";
 import { ErrorCode } from "../enums";
-import { Path } from "../Router";
+import { Path } from "../constants";
 
 type ReturnType = {
   handleError: (error: Error) => void;

@@ -17,9 +17,8 @@ import { ActionDropdown } from "../../components/ui";
 import { useGlobalStore } from "../../store";
 import { hasPermission } from "../../utils";
 import { Role } from "../../enums";
-import { color } from "../../constants";
+import { color, Path } from "../../constants";
 import { useAuthStore } from "../auth/store";
-import { Path } from "../../Router";
 
 const ActionMenuContainer = styled(Box)(() => ({
   display: "flex",
@@ -82,7 +81,7 @@ export const PrivateChat: FC = () => {
                             {t("admin")}
                           </ActionMenuContainer>
                         ),
-                        onClick: () => navigate(Path["Admin"]),
+                        onClick: () => navigate(Path["Admin"].index),
                       },
                     ]
                   : []),

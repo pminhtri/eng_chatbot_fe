@@ -18,11 +18,10 @@ import { useAlert, useErrorHandler } from "../../hooks";
 import { AppError } from "../../types";
 import { Button, Typography } from "../../components/ui";
 import { Layout } from "../../layouts";
-import { color, VALID_EMAIL_REGEX } from "../../constants";
+import { color, Path, VALID_EMAIL_REGEX } from "../../constants";
 import { formatRules } from "../../utils/validation";
 
 import { ErrorCode } from "../../enums";
-import { Path } from "../../Router";
 
 type LoginForm = {
   email: string;

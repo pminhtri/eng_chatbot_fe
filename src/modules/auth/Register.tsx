@@ -10,7 +10,7 @@ import { FC, useCallback, useEffect, useState } from "react";
 import { common } from "@mui/material/colors";
 
 import { Button, Typography } from "../../components/ui";
-import { color, VALID_EMAIL_REGEX } from "../../constants";
+import { color, Path, VALID_EMAIL_REGEX } from "../../constants";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Controller, FormProvider, useForm } from "react-hook-form";
@@ -21,7 +21,6 @@ import { Layout } from "../../layouts";
 import { formatRules } from "../../utils/validation";
 import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
 import { useAuthStore } from "./store";
-import { Path } from "../../Router";
 
 type RegisterForm = {
   email: string;

@@ -27,9 +27,8 @@ import {
 } from "@mui/icons-material";
 
 import { usePrivateChatStore } from "./store";
-import { Path } from "../../Router";
 import { useGlobalStore } from "../../store";
-import { color } from "../../constants";
+import { color, Path } from "../../constants";
 import { ActionDropdown, Typography } from "../../components/ui";
 
 const openedMixin = (theme: Theme): CSSObject => ({

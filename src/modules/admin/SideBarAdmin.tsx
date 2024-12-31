@@ -1,22 +1,7 @@
 import { Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { Path } from "../../constants";
 
-const Path = {
-  Root: "/",
-  Public: "/public",
-  Login: "/auth/login",
-  Register: "/auth/register",
-  Admin: {
-    index: "/admin",
-    children: {
-      dashBoard: "/admin/dashboard",
-      questions: "/admin/questions",
-    },
-  },
-  PageNotFound: "/page-not-found",
-  PermissionDenied: "/permission-denied",
-  Conversation: "/conversation",
-};
 type TSideBarData = {
   nameLink: string;
   path: string;

@@ -17,23 +17,7 @@ import {
 } from "./modules";
 import { Role } from "./enums";
 import DashBoard from "./modules/admin/DashBoard";
-
-export const Path = {
-  Root: "/",
-  Public: "/public",
-  Login: "/auth/login",
-  Register: "/auth/register",
-  Admin: {
-    index:"/admin",
-    children: {
-      dashBoard: "/admin/dashboard",
-      questions: "/admin/questions"
-    }
-  },
-  PageNotFound: "/page-not-found",
-  PermissionDenied: "/permission-denied",
-  Conversation: "/conversation",
-};
+import { Path } from "./constants";
 
 const parseJwt = (accessToken: string) => {
   try {
