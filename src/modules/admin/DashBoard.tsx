@@ -3,7 +3,7 @@ import { getRequestsInWeek, getSummaryUserActivities } from "../../api";
 import { BarChartCustom } from "./BarChartAdmin";
 import { TableAdmin } from "./TableAdmin";
 import { RequestsInWeek, SummaryUserActivities } from "../../types/admin";
-import { Box, Container, Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 
 const spreadStyle = {
   borderBottom: "solid #F4F5F6 2px",
@@ -19,7 +19,7 @@ const DashBoard = () => {
     SummaryUserActivities[]
   >([]);
   const [requestsInWeek, setRequestsInWeek] = useState<RequestsInWeek[]>([]);
-  const currentDate = new Date("2024-12-27");
+  const currentDate = new Date();
 
   useEffect(() => {
     const fetchUserLog = async () => {
@@ -41,13 +41,14 @@ const DashBoard = () => {
     setSummaryUserActivities(data);
   };
   return (
-    <Container
+    <Box
       sx={{
         display: "flex",
+        width: "100%",
         flexDirection: "column",
         alignItems: "start",
-        padding: "3rem",
         gap: "20px",
+        padding: "20px",
       }}
     >
       <Stack direction="row" spacing={4} sx={{ alignItems: "baseline" }}>
@@ -62,7 +63,7 @@ const DashBoard = () => {
             onItemClick={showDetailByDate}
           />
         </Box>
-        
+
         {/* <Box sx={{padding: "20px", ...boxStyle}}>
                     <span style={{color:"#D3D5D9"}}>Total user:</span>
                     <h1>290</h1>
@@ -70,11 +71,13 @@ const DashBoard = () => {
       </Stack>
       <Box sx={{ padding: "20px 0", ...boxStyle }}>
         <Box sx={spreadStyle}>
-          <span style={{ fontWeight: "bold", fontSize: "20px" }}>Detail Table</span>
+          <span style={{ fontWeight: "bold", fontSize: "20px" }}>
+            Detail Table
+          </span>
         </Box>
         <TableAdmin data={summaryUserActivities} />
       </Box>
-    </Container>
+    </Box>
   );
 };
 

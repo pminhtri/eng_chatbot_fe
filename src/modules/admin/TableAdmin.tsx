@@ -28,60 +28,61 @@ export const TableAdmin: FC<TableProp> = (props) => {
   };
   return (
     <Box sx={{ padding: "20px" }}>
-      {
-        props.data.length > 0 ? (
-          <>
-            <TableContainer>
-              <Table sx={{ tableLayout: "fixed" }} aria-label="simple table">
-                <TableHead
-                  sx={{ bgcolor: "rgb(17,23,29)", position: "sticky", top: "0" }}
-                >
-                  <TableRow>
-                    <TableCell align="center" sx={{ ...CellStyle, width: "30%" }}>
-                      No
-                    </TableCell>
-                    <TableCell align="center" sx={{ ...CellStyle, width: "50%" }}>
-                      Email user
-                    </TableCell>
-                    <TableCell align="center" sx={{ ...CellStyle, width: "20%" }}>
-                      Total requests
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {props.data
-                      .slice(
-                        currentPage * pageSize,
-                        currentPage * pageSize + pageSize
-                      )
-                      .map((row, index) => (
-                        <StyledTableRow key={index}>
-                          <TableCell component="th" scope="row" align="center">
-                            <span>{currentPage * pageSize + index + 1}</span>
-                          </TableCell>
-                          <TableCell align="center">
-                            <span>{row.email}</span>
-                          </TableCell>
-                          <TableCell align="center">
-                            <b>{row.total_messages}</b>
-                          </TableCell>
-                        </StyledTableRow>
-                      ))
-                  }
-                </TableBody>
-              </Table>
-            </TableContainer>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={props.data.length}
-              rowsPerPage={pageSize}
-              page={currentPage}
-              onPageChange={handleChangePage}
-            />
-          </>
-        ):(<span style={{color: "gray"}}>Choose a column to get data detail</span>)
-        }
+      {props.data.length > 0 ? (
+        <>
+          <TableContainer>
+            <Table sx={{ tableLayout: "fixed" }} aria-label="simple table">
+              <TableHead
+                sx={{ bgcolor: "rgb(17,23,29)", position: "sticky", top: "0" }}
+              >
+                <TableRow>
+                  <TableCell align="center" sx={{ ...CellStyle, width: "30%" }}>
+                    No
+                  </TableCell>
+                  <TableCell align="center" sx={{ ...CellStyle, width: "50%" }}>
+                    Email user
+                  </TableCell>
+                  <TableCell align="center" sx={{ ...CellStyle, width: "20%" }}>
+                    Total requests
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {props.data
+                  .slice(
+                    currentPage * pageSize,
+                    currentPage * pageSize + pageSize
+                  )
+                  .map((row, index) => (
+                    <StyledTableRow key={index}>
+                      <TableCell component="th" scope="row" align="center">
+                        <span>{currentPage * pageSize + index + 1}</span>
+                      </TableCell>
+                      <TableCell align="center">
+                        <span>{row.email}</span>
+                      </TableCell>
+                      <TableCell align="center">
+                        <b>{row.total_messages}</b>
+                      </TableCell>
+                    </StyledTableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={props.data.length}
+            rowsPerPage={pageSize}
+            page={currentPage}
+            onPageChange={handleChangePage}
+          />
+        </>
+      ) : (
+        <span style={{ color: "gray" }}>
+          Choose a column to get data detail
+        </span>
+      )}
     </Box>
   );
 };
