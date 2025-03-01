@@ -44,7 +44,7 @@ const AuthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (document.cookie) {
       localStorage.setItem("accessToken", document.cookie.split("=")[1]);
-
+      console.log("local",document.cookie)
       setAccessToken(document.cookie.split("=")[1]);
     }
   }, [document.cookie]);
